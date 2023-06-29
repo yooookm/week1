@@ -11,7 +11,15 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun BtnClick(v: View){
+    fun ContactClick(v: View){
+        setContentView(R.layout.contact_view)
+    }
+
+   fun GalleryClick(v: View){
+        setContentView(R.layout.contact_view)
+    }
+
+   fun BtnClick(v: View){
         setContentView(R.layout.contact_view)
     }
 
