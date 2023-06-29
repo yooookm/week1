@@ -9,15 +9,15 @@
 <Button
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Hello"
-    android:onClick="ContectClick"
+    android:text="contact"
+    android:onClick="ContactClick"
     android:id="@+id/contect"
     />
 
 <Button
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Hello"
+    android:text="gallery"
     android:onClick="GalleryClick"
     android:id="@+id/gallery"
     />
@@ -25,7 +25,7 @@
 <Button
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Hello"
+    android:text="free"
     android:onClick="BtnClick"
     android:id="@+id/button"
     />

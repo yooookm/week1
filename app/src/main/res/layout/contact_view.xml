@@ -13,4 +13,12 @@
         tools:layout_editor_absoluteX="171dp"
         tools:layout_editor_absoluteY="321dp"></TextView>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:onClick="BackClick"
+        android:id="@+id/back"
+        />
+
 </LinearLayout>

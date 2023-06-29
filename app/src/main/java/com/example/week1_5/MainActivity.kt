@@ -16,11 +16,14 @@ class MainActivity : AppCompatActivity() {
     }
 
    fun GalleryClick(v: View){
-        setContentView(R.layout.contact_view)
+        setContentView(R.layout.gallery_view)
     }
 
    fun BtnClick(v: View){
-        setContentView(R.layout.contact_view)
+        setContentView(R.layout.free_view)
     }
 
+    fun BackClick(v: View){
+        setContentView(R.layout.activity_main)
+    }
 }
