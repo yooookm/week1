@@ -4,30 +4,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
     tools:context=".MainActivity">
 
-<Button
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="연락처"
-    android:onClick="ContactClick"
-    android:id="@+id/contact"
-    />
+    <Button
+        android:id="@+id/contact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200dp"
+        android:onClick="ContactClick"
+        android:text="연락처"
+        android:textSize="50sp" />
 
-<Button
+    <Button
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:text="갤러리"
     android:onClick="GalleryClick"
     android:id="@+id/gallery"
-    />
+    android:textSize="50sp"
+    android:layout_marginTop="20dp"
+        />
 
-<Button
+    <Button
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:text="나머지"
     android:onClick="BtnClick"
+    android:textSize="50sp"
     android:id="@+id/button"
-    />
+    android:layout_marginTop="20dp"
+        />
 
 </LinearLayout>
+
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id = "@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+</android.support.v4.widget.DrawerLayout>
