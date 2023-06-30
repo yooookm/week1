@@ -1,5 +1,6 @@
 package com.example.week1_5
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -16,76 +17,69 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.week1_5.databinding.ContactViewBinding
 
 class ContactActivity :AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        lateinit var binding: ContactViewBinding
-        lateinit var requestLauncher: ActivityResultLauncher<Intent>
+    private val REQUEST_CONTACT_PERMISSION = 100
+    lateinit var binding: ContactViewBinding
+    lateinit var requestLauncher: ActivityResultLauncher<Intent>
+    lateinit var contactRV: RecyclerView
+    lateinit var itemlist: ArrayList<contactInfo>
 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ContactViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val contactRV = findViewById<RecyclerView>(R.id.contact_RV)
-        val itemlist = ArrayList<contactInfo>()
+        contactRV = findViewById<RecyclerView>(R.id.contact_RV)
+        itemlist = ArrayList<contactInfo>()
 
-        //사용자가 퍼미션 허용했는지 확인
-        val status = ContextCompat.checkSelfPermission(this, "android.permission.READ_CONTACTS")
-        if (status == PackageManager.PERMISSION_GRANTED) {
-            Log.d("test", "permission granted")
+        // Check for permissions
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), REQUEST_CONTACT_PERMISSION)
         } else {
-            //퍼미션 요청 다이얼로그 표시
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf<String>("android.permission.READ_CONTACTS"),
-                100
-            )
-            Log.d("test", "permission denied")
+            loadContacts()
         }
+    }
 
-        // ActivityResultLauncher 초기화, 결과 콜백 정의
-        requestLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == RESULT_OK) {
-                    // 주소록 상세 정보 가져오기
-                    val cursor = contentResolver.query(
-                        it.data!!.data!!,
-                        arrayOf<String>(
-                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                            ContactsContract.CommonDataKinds.Phone.NUMBER,
-                        ),
-                        null,
-                        null,
-                        null
-                    )
-                    Log.d("test", "cursor size : ${cursor?.count}")
-                    if (cursor!!.moveToFirst()) {
-                        val name = cursor.getString(0)
-                        val phone = cursor.getString(1)
-                        itemlist.add(contactInfo(name,phone))
-                    }
-
-                }
-
-
-                val contactAdapter1 = contactAdapter(itemlist)
-                contactAdapter1.notifyDataSetChanged()
-
-                contactRV.adapter = contactAdapter1
-                contactRV.layoutManager =
-                    LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+    // Handle result of permission request
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == REQUEST_CONTACT_PERMISSION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("test", "permission granted")
+                loadContacts()
+            } else {
+                Log.d("test", "permission denied")
             }
-    }
-
-    // 다이얼 로그에서 퍼미션 허용했는지 확인
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.d("test","permission granted")
         } else {
-            Log.d("test","permission denied")
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
+    // Load contacts
+    fun loadContacts() {
+        val cursor = contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            arrayOf(
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER),
+            null,
+            null,
+            null)
+
+        cursor?.let {
+            if (it.moveToFirst()) {
+                do {
+                    val name = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                    val phone = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    itemlist.add(contactInfo(name, phone))
+                } while (it.moveToNext())
+            }
+
+            it.close()
+
+            val contactAdapter1 = contactAdapter(itemlist)
+            contactAdapter1.notifyDataSetChanged()
+
+            contactRV.adapter = contactAdapter1
+            contactRV.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        }
+    }
 }
