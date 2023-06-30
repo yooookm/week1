@@ -20,5 +20,9 @@
         android:onClick="BackClick"
         android:id="@+id/back"
         />
+    <ListView
+        android:id="@+id/contact_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </LinearLayout>
