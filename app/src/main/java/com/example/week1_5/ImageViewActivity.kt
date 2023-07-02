@@ -1,0 +1,32 @@
+package com.example.week1_5
+
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+
+class ImageViewActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_image_view)
+
+        val imageView = findViewById<ImageView>(R.id.full_image)
+        val imageUri: Uri = intent.getParcelableExtra(IMAGE_URI)!!
+
+        Glide.with(this).load(imageUri).into(imageView)
+    }
+
+    companion object {
+        const val IMAGE_URI = "IMAGE_URI"
+
+        fun newIntent(context: Context, imageUri: Uri): Intent {
+            val intent = Intent(context, ImageViewActivity::class.java)
+            intent.putExtra(IMAGE_URI, imageUri)
+            return intent
+        }
+    }
+}

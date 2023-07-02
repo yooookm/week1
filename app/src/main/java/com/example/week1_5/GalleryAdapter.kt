@@ -1,21 +1,17 @@
 package com.example.week1_5
 
+import android.app.AlertDialog
 import android.media.Image
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-class GalleryAdapter(private val myImageList: List<imageInfo>) :
+class GalleryAdapter(val myImageList: List<imageInfo>) :
     RecyclerView.Adapter<GalleryAdapter.MyViewHolder>() {
-
-    // ViewHolder 클래스
-    class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var imageView: ImageView = itemView.findViewById(R.id.image)
-    }
-
     // onCreateViewHolder에서는 item 레이아웃을 inflate 합니다.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.gallery_item, parent, false)
@@ -31,4 +27,22 @@ class GalleryAdapter(private val myImageList: List<imageInfo>) :
     override fun getItemCount(): Int {
         return myImageList.size
     }
+    // ViewHolder 클래스
+    inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var imageView: ImageView = itemView.findViewById(R.id.image)
+        init {
+            itemView.setOnClickListener {
+                val position: Int = adapterPosition
+                val context = itemView.context
+                val imageUri = myImageList[position].uri
+
+                val intent = ImageViewActivity.newIntent(context, imageUri)
+                context.startActivity(intent)
+            }
+        }
+
+
+    }
+
+
 }
