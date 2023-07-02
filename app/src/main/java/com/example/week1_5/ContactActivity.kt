@@ -78,6 +78,9 @@ class ContactActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_CONTACTS), REQUEST_CONTACT_PERMISSION)
         } else {
+            // Clear existing contact list
+            itemlist.clear()
+
             val cursor = contentResolver.query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 arrayOf(
@@ -97,6 +100,9 @@ class ContactActivity : AppCompatActivity() {
                 }
                 it.close()
 
+                // Sort the contact list by name
+                itemlist.sortBy { it.name }
+
                 val contactAdapter1 = contactAdapter(itemlist)
                 contactAdapter1.notifyDataSetChanged()
 
@@ -105,9 +111,6 @@ class ContactActivity : AppCompatActivity() {
             }
         }
     }
-
-
-
 
     fun showAddContactDialog() {
         val builder = AlertDialog.Builder(this)
