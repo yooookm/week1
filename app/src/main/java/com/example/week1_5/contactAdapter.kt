@@ -4,7 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView // 추가
+import android.widget.Toast // 추가
+import androidx.recyclerview.widget.RecyclerView
 
 class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapter<contactAdapter.ContactViewHolder>() {
 
@@ -25,5 +26,13 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
     inner class ContactViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val contactName: TextView = itemView.findViewById(R.id.contact_name)
         val contactNumber: TextView = itemView.findViewById(R.id.contact_number)
+
+        init {
+            itemView.setOnClickListener {
+                val position: Int = adapterPosition
+                val context = itemView.context
+                Toast.makeText(context, "Item ID: ${itemList[position].id}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

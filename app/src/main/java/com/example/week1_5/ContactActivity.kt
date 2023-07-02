@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 
 import android.content.ContentProviderOperation
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.OperationApplicationException
@@ -71,7 +72,10 @@ class ContactActivity : AppCompatActivity() {
             showAddContactDialog()
         }
         binding.delete.setOnClickListener {
-            deleteContactById("2")
+            deleteContactById("3")
+        }
+        binding.edit.setOnClickListener {
+            editContactByID("1", "차민호", "010-3846-5035")
         }
 
     }
@@ -202,6 +206,32 @@ class ContactActivity : AppCompatActivity() {
         } else {
             Log.i("ContactUtils", "No contact found with id: $id")
         }
+        loadContacts()
     }
+    fun editContactByID(id: String, newName: String, newNumber: String) {
+        // For updating name
+        val nameValues = ContentValues()
+        nameValues.put(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, newName)
+
+        val nameSelection = "${ContactsContract.Data.CONTACT_ID} = ? AND ${ContactsContract.Data.MIMETYPE} = ?"
+        val nameSelectionArgs = arrayOf(id, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+        val rowsEditName = contentResolver.update(ContactsContract.Data.CONTENT_URI, nameValues, nameSelection, nameSelectionArgs)
+
+        // For updating phone number
+        val phoneValues = ContentValues()
+        phoneValues.put(ContactsContract.CommonDataKinds.Phone.NUMBER, newNumber)
+
+        val phoneSelection = "${ContactsContract.Data.CONTACT_ID} = ? AND ${ContactsContract.Data.MIMETYPE} = ?"
+        val phoneSelectionArgs = arrayOf(id, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+        val rowsEditPhone = contentResolver.update(ContactsContract.Data.CONTENT_URI, phoneValues, phoneSelection, phoneSelectionArgs)
+
+        if (rowsEditName > 0 && rowsEditPhone > 0) {
+            Toast.makeText(this, "Contact updated", Toast.LENGTH_SHORT).show()
+            loadContacts()
+        } else {
+            Toast.makeText(this, "Contact update failed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
 }
