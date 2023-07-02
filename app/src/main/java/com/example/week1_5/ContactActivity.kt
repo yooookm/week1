@@ -232,6 +232,4 @@ class ContactActivity : AppCompatActivity() {
             Toast.makeText(this, "Contact update failed", Toast.LENGTH_SHORT).show()
         }
     }
-
-
 }

@@ -1,5 +1,6 @@
 package com.example.week1_5
 
+import android.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
@@ -16,7 +17,6 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         holder.contactName.text = itemList[position].name
-        holder.contactNumber.text = itemList[position].contactNum
     }
 
     override fun getItemCount(): Int {
@@ -25,14 +25,26 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
 
     inner class ContactViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val contactName: TextView = itemView.findViewById(R.id.contact_name)
-        val contactNumber: TextView = itemView.findViewById(R.id.contact_number)
 
         init {
             itemView.setOnClickListener {
                 val position: Int = adapterPosition
                 val context = itemView.context
                 Toast.makeText(context, "Item ID: ${itemList[position].id}", Toast.LENGTH_SHORT).show()
+
+                // Add a dialog to show the phone number
+                val builder = AlertDialog.Builder(context)
+                builder.setTitle(itemList[position].name)
+                builder.setMessage(itemList[position].contactNum) // Use the correct reference here
+
+                builder.setPositiveButton("OK") { dialog, _ ->
+                    dialog.dismiss()
+                }
+
+                builder.show()
             }
         }
     }
+
+
 }
