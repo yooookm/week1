@@ -7,19 +7,22 @@ import android.view.MotionEvent
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
 import androidx.recyclerview.widget.RecyclerView
+import com.example.week1_5.contactAdapter
 
 
 enum class ButtonsState {
     GONE, LEFT_VISIBLE, RIGHT_VISIBLE
 }
 
-var swipeBack = false
-var buttonShowedState: ButtonsState = ButtonsState.GONE
-val buttonWidth = 300f
-var buttonInstance1: RectF? = null;
-var buttonInstance2: RectF? = null;
 
-class SwipeController() : ItemTouchHelper.Callback() {
+
+class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() {
+    var swipeBack = false
+    var buttonShowedState: ButtonsState = ButtonsState.GONE
+    val buttonWidth = 300f
+    var buttonInstance1: RectF? = null;
+    var buttonInstance2: RectF? = null;
+    private var currentItemViewHolder: RecyclerView.ViewHolder? = null
 
 
     override fun getMovementFlags(
@@ -57,13 +60,16 @@ class SwipeController() : ItemTouchHelper.Callback() {
         actionState: Int, isCurrentlyActive: Boolean
     ) {
         if (actionState == ACTION_STATE_SWIPE) {
-            setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            super.onChildDraw(
+                c!!, recyclerView!!,
+                viewHolder!!, dX, dY, actionState, isCurrentlyActive
+            )
         }
-        super.onChildDraw(
-            c!!, recyclerView!!,
-            viewHolder!!, dX, dY, actionState, isCurrentlyActive
-        )
-        drawButtons(c, viewHolder)
+        setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+        if (buttonShowedState == ButtonsState.GONE) {
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+        currentItemViewHolder = viewHolder
     }
 
     private fun drawButtons(c: Canvas, viewHolder: RecyclerView.ViewHolder) {
@@ -94,7 +100,6 @@ class SwipeController() : ItemTouchHelper.Callback() {
         buttonInstance2 = rightButton
     }
 
-
     private fun drawText(text: String, c: Canvas, button: RectF, p: Paint) {
         val textSize = 60f
         p.color = Color.WHITE
@@ -102,6 +107,12 @@ class SwipeController() : ItemTouchHelper.Callback() {
         p.textSize = textSize
         val textWidth = p.measureText(text)
         c.drawText(text, button.centerX() - textWidth / 2, button.centerY() + textSize / 2, p)
+    }
+
+    fun onDraw(c: Canvas?) {
+        if (currentItemViewHolder != null) {
+            drawButtons(c!!, currentItemViewHolder!!)
+        }
     }
 
     private fun setTouchListener(
@@ -117,6 +128,7 @@ class SwipeController() : ItemTouchHelper.Callback() {
             if (swipeBack) {
                 if (dX < -buttonWidth) buttonShowedState =
                     ButtonsState.RIGHT_VISIBLE
+                else if (dX > -buttonWidth) buttonShowedState  = ButtonsState.LEFT_VISIBLE;
                 if (buttonShowedState !== ButtonsState.GONE) {
                     setTouchDownListener(
                         c,
@@ -164,9 +176,10 @@ class SwipeController() : ItemTouchHelper.Callback() {
         dX: Float, dY: Float,
         actionState: Int, isCurrentlyActive: Boolean
     ) {
+
         recyclerView.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
-                super@SwipeController.onChildDraw(
+                super.onChildDraw(
                     c,
                     recyclerView,
                     viewHolder,
@@ -178,6 +191,14 @@ class SwipeController() : ItemTouchHelper.Callback() {
                 recyclerView.setOnTouchListener { v, event -> false }
                 setItemsClickable(recyclerView, true)
                 swipeBack = false
+
+                if (buttonInstance1 != null && buttonInstance1!!.contains(event.x, event.y)) {
+                    adapter.swipeControllerActions?.delete_contact(v)
+                } else if (buttonInstance2 != null && buttonInstance2!!.contains(event.x, event.y)) {
+                    adapter.swipeControllerActions?.edit_contact(v)
+                }
+
+
                 buttonShowedState = ButtonsState.GONE
             }
             false

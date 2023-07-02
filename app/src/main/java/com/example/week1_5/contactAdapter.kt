@@ -1,14 +1,26 @@
 package com.example.week1_5
 
 import android.app.AlertDialog
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast // 추가
 import androidx.recyclerview.widget.RecyclerView
+import com.example.week1_5.contactAdapter.ContactViewHolder
 
-class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapter<contactAdapter.ContactViewHolder>() {
+class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapter<ContactViewHolder>() {
+
+    interface SwipeControllerActions {
+        fun delete_contact(view: View){
+            Log.d("tag","${view.id}")
+//            id = view.contact_id.text()
+        }
+        fun edit_contact(view: View)
+    }
+
+    var swipeControllerActions: SwipeControllerActions? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
@@ -17,6 +29,7 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         holder.contactName.text = itemList[position].name
+        holder.id.text = itemList[position].id
     }
 
     override fun getItemCount(): Int {
@@ -25,6 +38,7 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
 
     inner class ContactViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val contactName: TextView = itemView.findViewById(R.id.contact_name)
+
 
         init {
             itemView.setOnClickListener {
@@ -44,6 +58,8 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
                 builder.show()
             }
         }
+        val id : TextView = itemView.findViewById(R.id.contact_id)
+
     }
 
 

@@ -1,19 +1,16 @@
 package com.example.week1_5
 
+import SwipeController
 import android.Manifest
-
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-
 import android.content.ContentProviderOperation
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
-import android.content.OperationApplicationException
 import android.content.pm.PackageManager
+import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
-import android.os.RemoteException
 import android.provider.ContactsContract
 import android.util.Log
 import android.widget.EditText
@@ -23,9 +20,13 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import com.example.week1_5.databinding.ContactViewBinding
+
 
 class ContactActivity : AppCompatActivity() {
 
@@ -54,8 +55,27 @@ class ContactActivity : AppCompatActivity() {
         binding = ContactViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        contactRV = findViewById<RecyclerView>(R.id.contact_RV)
         itemlist = ArrayList<contactInfo>()
+
+        val adapter = contactAdapter(itemlist)
+        val swipeController = SwipeController(adapter)
+
+        val contactRV : RecyclerView = findViewById(R.id.contact_RV)
+        contactRV.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        contactRV.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
+        contactRV.addItemDecoration(object : ItemDecoration() {
+            override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+                swipeController.onDraw(c)
+            }
+        })
+
+        adapter.notifyDataSetChanged()
+        contactRV.adapter = adapter
+
+
+        val itemTouchHelper = ItemTouchHelper(swipeController)
+        itemTouchHelper.attachToRecyclerView(contactRV)
+
 
         // Check for permissions
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
@@ -114,11 +134,6 @@ class ContactActivity : AppCompatActivity() {
                 // Sort the contact list by name
                 itemlist.sortBy { it.name }
 
-                val contactAdapter1 = contactAdapter(itemlist)
-                contactAdapter1.notifyDataSetChanged()
-
-                contactRV.adapter = contactAdapter1
-                contactRV.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
             }
         }
     }
