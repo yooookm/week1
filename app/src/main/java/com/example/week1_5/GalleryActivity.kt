@@ -24,23 +24,47 @@ import java.util.Date
 
 class GalleryActivity : AppCompatActivity() {
     private val REQUEST_GALLERY_PERMISSION = 100
+    private val REQUEST_WRITE_PERMISSION = 101
     lateinit var binding: GalleryViewBinding
     lateinit var galleryRV: RecyclerView
     lateinit var imageList: ArrayList<imageInfo>
 
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == REQUEST_GALLERY_PERMISSION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("test", "permission granted")
-                loadGallery()
-            } else {
-                Log.d("test", "permission denied")
+        when (requestCode) {
+            REQUEST_GALLERY_PERMISSION -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    Log.d("test", "READ permission granted")
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_WRITE_PERMISSION)
+                    } else {
+                        loadGallery()
+                    }
+                } else {
+                    Log.d("test", "READ permission denied")
+                }
             }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            REQUEST_WRITE_PERMISSION -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    Log.d("test", "WRITE permission granted")
+                    loadGallery()
+                } else {
+                    Log.d("test", "WRITE permission denied")
+                }
+            }
+            else -> {
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+            && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            loadGallery()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var binding: GalleryViewBinding
@@ -52,8 +76,21 @@ class GalleryActivity : AppCompatActivity() {
         galleryRV.layoutManager = GridLayoutManager(this, 3)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_GALLERY_PERMISSION)
-        } else {
-            loadGallery()
+        } else
+        {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    REQUEST_WRITE_PERMISSION
+                )
+            } else {
+                loadGallery()
+            }
         }
     }
 
