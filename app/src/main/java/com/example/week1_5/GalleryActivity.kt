@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.week1_5.databinding.GalleryViewBinding
 import java.util.Date
 
+
 class GalleryActivity : AppCompatActivity() {
     private val REQUEST_GALLERY_PERMISSION = 100
     lateinit var binding: GalleryViewBinding
@@ -92,7 +93,8 @@ class GalleryActivity : AppCompatActivity() {
                 val galleryAdapter = GalleryAdapter(imageList)
                 galleryAdapter.notifyDataSetChanged()
                 galleryRV.adapter =galleryAdapter
-                galleryRV.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+                galleryRV.layoutManager = GridLayoutManager(this, 3)
+
             }
         }
     }
