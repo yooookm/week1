@@ -1,0 +1,4 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#FF0000" /> <!-- 버튼의 배경색을 원하는 색상으로 변경하세요 -->
+</shape>

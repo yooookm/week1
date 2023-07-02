@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentUris
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.ImageDecoder.ImageInfo
 import android.media.Image
@@ -73,6 +74,20 @@ class GalleryActivity : AppCompatActivity() {
 
         galleryRV = findViewById<RecyclerView>(R.id.gallery_RV)
         imageList = ArrayList<imageInfo>()
+        binding.cameraButton.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA),1)
+            }
+            else {
+                val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                if (takePictureIntent.resolveActivity(packageManager) != null) {
+                    startActivityForResult(takePictureIntent, 1)
+                } else {
+                    Toast.makeText(this, "No camera app available", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
         galleryRV.layoutManager = GridLayoutManager(this, 3)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_GALLERY_PERMISSION)
