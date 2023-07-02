@@ -1,12 +1,16 @@
 package com.example.week1_5
 
 import android.Manifest
+
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+
 import android.content.ContentProviderOperation
 import android.content.Intent
+import android.content.OperationApplicationException
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.RemoteException
 import android.provider.ContactsContract
 import android.util.Log
 import android.widget.EditText
@@ -20,8 +24,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.week1_5.databinding.ContactViewBinding
 
-
 class ContactActivity : AppCompatActivity() {
+
     private val REQUEST_CONTACT_PERMISSION = 100
     lateinit var binding: ContactViewBinding
     lateinit var requestLauncher: ActivityResultLauncher<Intent>
@@ -47,15 +51,17 @@ class ContactActivity : AppCompatActivity() {
         binding = ContactViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        contactRV = findViewById<RecyclerView>(R.id.contact_RV)
+        contactRV = findViewById<RecyclerView>(R.id.button2)
         itemlist = ArrayList<contactInfo>()
 
         // Check for permissions
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), REQUEST_CONTACT_PERMISSION)
+
         } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_CONTACTS), REQUEST_CONTACT_PERMISSION)
         } else {
+
             loadContacts()
         }
 
@@ -142,6 +148,7 @@ class ContactActivity : AppCompatActivity() {
 
         builder.show()
     }
+
     fun addContact(name: String, phone: String) {
         // Check if WRITE_CONTACTS permission is granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
@@ -177,5 +184,4 @@ class ContactActivity : AppCompatActivity() {
             Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-
 }
