@@ -6,9 +6,11 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 
 import android.content.ContentProviderOperation
+import android.content.Context
 import android.content.Intent
 import android.content.OperationApplicationException
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.RemoteException
 import android.provider.ContactsContract
@@ -51,7 +53,7 @@ class ContactActivity : AppCompatActivity() {
         binding = ContactViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        contactRV = findViewById<RecyclerView>(R.id.button2)
+        contactRV = findViewById<RecyclerView>(R.id.contact_RV)
         itemlist = ArrayList<contactInfo>()
 
         // Check for permissions
@@ -61,7 +63,6 @@ class ContactActivity : AppCompatActivity() {
         } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_CONTACTS), REQUEST_CONTACT_PERMISSION)
         } else {
-
             loadContacts()
         }
 
@@ -69,6 +70,10 @@ class ContactActivity : AppCompatActivity() {
         binding.button2.setOnClickListener {
             showAddContactDialog()
         }
+        binding.delete.setOnClickListener {
+            deleteContactById("2")
+        }
+
     }
 
     // Load contacts
@@ -84,6 +89,7 @@ class ContactActivity : AppCompatActivity() {
             val cursor = contentResolver.query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 arrayOf(
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
                     ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                     ContactsContract.CommonDataKinds.Phone.NUMBER),
                 null,
@@ -93,9 +99,10 @@ class ContactActivity : AppCompatActivity() {
             cursor?.let {
                 if (it.moveToFirst()) {
                     do {
+                        val id = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
                         val name = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                         val phone = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                        itemlist.add(contactInfo(name, phone))
+                        itemlist.add(contactInfo(id,name, phone))
                     } while (it.moveToNext())
                 }
                 it.close()
@@ -184,4 +191,17 @@ class ContactActivity : AppCompatActivity() {
             Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
+
+    fun deleteContactById(id: String) {
+        val contactUri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, id)
+        val rowsDeleted = contentResolver.delete(contactUri, null, null)
+
+        if (rowsDeleted > 0) {
+            Log.i("ContactUtils", "Deleted contact with id: $id")
+        } else {
+            Log.i("ContactUtils", "No contact found with id: $id")
+        }
+    }
+
 }
