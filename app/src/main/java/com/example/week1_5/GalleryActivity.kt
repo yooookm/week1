@@ -4,10 +4,14 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder.ImageInfo
+import android.icu.text.SimpleDateFormat
 import android.media.Image
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.Media
@@ -21,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.week1_5.databinding.GalleryViewBinding
 import java.util.Date
+import java.util.Locale
 
 
 class GalleryActivity : AppCompatActivity() {
@@ -76,9 +81,8 @@ class GalleryActivity : AppCompatActivity() {
         imageList = ArrayList<imageInfo>()
         binding.cameraButton.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA),1)
-            }
-            else {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 1)
+            } else {
                 val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 if (takePictureIntent.resolveActivity(packageManager) != null) {
                     startActivityForResult(takePictureIntent, 1)
@@ -87,6 +91,7 @@ class GalleryActivity : AppCompatActivity() {
                 }
             }
         }
+
 
         galleryRV.layoutManager = GridLayoutManager(this, 3)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -107,6 +112,42 @@ class GalleryActivity : AppCompatActivity() {
                 loadGallery()
             }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            val savedImageUri = saveImageToExternalStorage(imageBitmap)
+            if (savedImageUri != null) {
+                //
+            } else {
+                Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    @SuppressLint("NewApi")
+    private fun saveImageToExternalStorage(bitmap: Bitmap): Uri? {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val imageFileName = "IMG_$timeStamp.jpg"
+
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, imageFileName)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
+        }
+
+        val resolver = contentResolver
+        var imageUri: Uri? = null
+
+        resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)?.let { uri ->
+            imageUri = uri
+            resolver.openOutputStream(uri)?.use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
+            }
+        }
+
+        return imageUri
     }
 
     @SuppressLint("Range")
