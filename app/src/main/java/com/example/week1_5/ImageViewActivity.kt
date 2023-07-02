@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -20,10 +21,12 @@ class ImageViewActivity : AppCompatActivity() {
 
         val imageView = findViewById<ImageView>(R.id.full_image)
         val imageUri: Uri = intent.getParcelableExtra(IMAGE_URI)!!
-
         Glide.with(this).load(imageUri).into(imageView)
 
-        imageView.setOnClickListener {
+        val delete_button = findViewById<ImageButton>(R.id.delete_button)
+        val info_button = findViewById<ImageButton>(R.id.info_button)
+
+        delete_button.setOnClickListener {
             deleteImage(imageUri)
         }
     }
