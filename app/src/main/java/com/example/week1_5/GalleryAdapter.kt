@@ -34,10 +34,11 @@ class GalleryAdapter(val myImageList: List<imageInfo>) :
             itemView.setOnClickListener {
                 val position: Int = adapterPosition
                 val context = itemView.context
-                val imageUri = myImageList[position].uri
+                val image = myImageList[position]
 
-                val intent = ImageViewActivity.newIntent(context, imageUri)
-                context.startActivity(intent)
+
+                context.startActivity(ImageViewActivity.newIntent(context, image.uri, image.name, image.date))
+
             }
         }
 
