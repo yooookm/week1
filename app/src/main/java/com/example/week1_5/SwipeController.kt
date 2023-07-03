@@ -4,6 +4,7 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.util.Log
 import android.view.MotionEvent
+import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
 import androidx.recyclerview.widget.RecyclerView
@@ -14,8 +15,8 @@ enum class ButtonsState {
     GONE, LEFT_VISIBLE, RIGHT_VISIBLE
 }
 abstract class SwipeControllerActions {
-    open fun delete_contact(position: Int){}
-    open fun edit_contact(position: Int){}
+    open fun delete_contact(position: Int,view:View){}
+    open fun edit_contact(position: Int, view: View){}
 }
 
 
@@ -213,10 +214,11 @@ class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeCont
 
                 if (buttonInstance1 != null && buttonInstance1!!.contains(event.x, event.y)) {
                     Log.d("tag","왼쪽")
-                    buttonsActions.edit_contact(viewHolder.adapterPosition)
+                    adapter.notifyItemChanged(viewHolder.adapterPosition)
+                    buttonsActions.edit_contact(viewHolder.adapterPosition,v)
                 } else if (buttonInstance2 != null && buttonInstance2!!.contains(event.x, event.y)) {
                     Log.d("tag","오른쪽")
-                    buttonsActions.delete_contact(viewHolder.adapterPosition)
+                    buttonsActions.delete_contact(viewHolder.adapterPosition,v)
                 }
 
                 buttonShowedState = ButtonsState.GONE

@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.util.Log
+import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -36,7 +37,7 @@ class ContactActivity : AppCompatActivity() {
     lateinit var requestLauncher: ActivityResultLauncher<Intent>
     lateinit var contactRV: RecyclerView
     lateinit var itemlist: ArrayList<contactInfo>
-
+    lateinit var adapter: contactAdapter
     // Handle result of permission request
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CONTACT_PERMISSION) {
@@ -58,19 +59,25 @@ class ContactActivity : AppCompatActivity() {
 
         itemlist = ArrayList<contactInfo>()
 
-        val adapter = contactAdapter(itemlist)
+        adapter = contactAdapter(itemlist)
         val swipeController = SwipeController(adapter, object : SwipeControllerActions(){
-            override fun delete_contact(position:Int){
-                val id = adapter.getId(position)
+            override fun delete_contact(position:Int,view:View){
+                val id = adapter.getId(view)
+                Log.d("tag","id = ${id}")
                 deleteContactById(id)
-                adapter.notifyItemRemoved(position)
-                adapter.notifyItemRangeChanged(position, adapter.itemCount)
+//                adapter.notifyItemRemoved(position)
+//                adapter.notifyItemRangeChanged(position, adapter.itemCount)
+                adapter.notifyDataSetChanged()
+                loadContacts()
             }
 
-            override fun edit_contact(position:Int){
-                val id = adapter.getId(position)
+            override fun edit_contact(position:Int, view: View){
+                val id = adapter.getId(view)
+                Log.d("tag","id = ${id}")
                 showEditContactDialog(id)
-                adapter.notifyItemChanged(position)
+//                adapter.notifyItemChanged(position)
+                adapter.notifyDataSetChanged()
+                loadContacts()
             }
         })
 
@@ -141,7 +148,7 @@ class ContactActivity : AppCompatActivity() {
 
                 // Sort the contact list by name
                 itemlist.sortBy { it.name }
-
+                adapter.notifyDataSetChanged()
             }
         }
     }
@@ -314,12 +321,7 @@ class ContactActivity : AppCompatActivity() {
         val phoneSelectionArgs = arrayOf(id, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
         val rowsEditPhone = contentResolver.update(ContactsContract.Data.CONTENT_URI, phoneValues, phoneSelection, phoneSelectionArgs)
 
-        if (rowsEditName > 0 && rowsEditPhone > 0) {
-            Toast.makeText(this, "Contact updated", Toast.LENGTH_SHORT).show()
+       Toast.makeText(this, "Contact updated", Toast.LENGTH_SHORT).show()
             loadContacts()
-        } else {
-            Toast.makeText(this, "Contact update failed", Toast.LENGTH_SHORT).show()
-        }
-        loadContacts()
     }
 }
