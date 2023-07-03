@@ -145,22 +145,47 @@ class ContactActivity : AppCompatActivity() {
             }
         }
     }
+    @SuppressLint("Range")
+    fun getContactDetails(id: String): Pair<String?, String?> {
+        val cursor = contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            arrayOf(
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER
+            ),
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+            arrayOf(id),
+            null
+        )
+        var name: String? = null
+        var phone: String? = null
+        cursor?.let {
+            if (it.moveToFirst()) {
+                name = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                phone = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+            }
+            it.close()
+        }
+        return Pair(name, phone)
+    }
 
-    fun showEditContactDialog(id:String) {
+    fun showEditContactDialog(id: String) {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Edit Contact")
 
         val inputLayout = LinearLayout(this)
         inputLayout.orientation = LinearLayout.VERTICAL
 
+        val contactDetails = getContactDetails(id)
+
         val nameInput = EditText(this)
         nameInput.hint = "Name"
-        nameInput.setText(nameInput.text)
+        nameInput.setText(contactDetails.first) // set the text to the contact's name
         inputLayout.addView(nameInput)
 
         val phoneInput = EditText(this)
         phoneInput.hint = "Phone number"
-        phoneInput.setText(phoneInput.text)
+        phoneInput.setText(contactDetails.second) // set the text to the contact's phone number
         inputLayout.addView(phoneInput)
 
         builder.setView(inputLayout)
@@ -170,7 +195,7 @@ class ContactActivity : AppCompatActivity() {
             val phone = phoneInput.text.toString()
 
             if (name.isNotEmpty() && phone.isNotEmpty()) {
-                editContactByID(id,name,phone)
+                editContactByID(id, name, phone)
                 dialog.dismiss()
             } else {
                 // Show error message
@@ -184,6 +209,7 @@ class ContactActivity : AppCompatActivity() {
 
         builder.show()
     }
+
 
 
     fun showAddContactDialog() {
