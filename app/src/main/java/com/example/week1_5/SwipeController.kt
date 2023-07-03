@@ -18,6 +18,7 @@ enum class ButtonsState {
 
 class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() {
     var swipeBack = false
+    var isSwipeEnabled = true
     var buttonShowedState: ButtonsState = ButtonsState.GONE
     val buttonWidth = 300f
     var buttonInstance1: RectF? = null;
@@ -128,7 +129,6 @@ class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() 
             if (swipeBack) {
                 if (dX < -buttonWidth) buttonShowedState =
                     ButtonsState.RIGHT_VISIBLE
-                else if (dX > -buttonWidth) buttonShowedState  = ButtonsState.LEFT_VISIBLE;
                 if (buttonShowedState !== ButtonsState.GONE) {
                     setTouchDownListener(
                         c,
@@ -140,6 +140,7 @@ class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() 
                         isCurrentlyActive
                     )
                     setItemsClickable(recyclerView, false)
+                    adapter.setItemClickable(false)
                 }
             }
             false
@@ -193,8 +194,10 @@ class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() 
                 swipeBack = false
 
                 if (buttonInstance1 != null && buttonInstance1!!.contains(event.x, event.y)) {
+                    Log.d("tag","왼쪽")
                     adapter.swipeControllerActions?.delete_contact(v)
                 } else if (buttonInstance2 != null && buttonInstance2!!.contains(event.x, event.y)) {
+                    Log.d("tag","오른쪽")
                     adapter.swipeControllerActions?.edit_contact(v)
                 }
 
@@ -211,6 +214,10 @@ class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() 
     ) {
         for (i in 0 until recyclerView.childCount) {
             recyclerView.getChildAt(i).isClickable = isClickable
+        }
+        if (isClickable) {
+            // 스와이프 완료 후에는 아이템 클릭 가능
+            adapter.setItemClickable(true)
         }
     }
 }

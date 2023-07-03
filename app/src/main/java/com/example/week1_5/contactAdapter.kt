@@ -12,6 +12,13 @@ import com.example.week1_5.contactAdapter.ContactViewHolder
 
 class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapter<ContactViewHolder>() {
 
+    private var isItemClickable: Boolean = true
+
+    // 아이템 클릭 가능 상태를 변경하는 메서드
+    fun setItemClickable(isClickable: Boolean) {
+        this.isItemClickable = isClickable
+    }
+
     interface SwipeControllerActions {
         fun delete_contact(view: View){
             Log.d("tag","${view.id}")
@@ -39,23 +46,23 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
     inner class ContactViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val contactName: TextView = itemView.findViewById(R.id.contact_name)
 
-
         init {
             itemView.setOnClickListener {
-                val position: Int = adapterPosition
-                val context = itemView.context
-                Toast.makeText(context, "Item ID: ${itemList[position].id}", Toast.LENGTH_SHORT).show()
+                if (isItemClickable) {
+                    val position: Int = adapterPosition
+                    val context = itemView.context
 
-                // Add a dialog to show the phone number
-                val builder = AlertDialog.Builder(context)
-                builder.setTitle(itemList[position].name)
-                builder.setMessage(itemList[position].contactNum) // Use the correct reference here
+                    // Add a dialog to show the phone number
+                    val builder = AlertDialog.Builder(context)
+                    builder.setTitle(itemList[position].name)
+                    builder.setMessage(itemList[position].contactNum) // Use the correct reference here
 
-                builder.setPositiveButton("OK") { dialog, _ ->
-                    dialog.dismiss()
+                    builder.setPositiveButton("OK") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+
+                    builder.show()
                 }
-
-                builder.show()
             }
         }
         val id : TextView = itemView.findViewById(R.id.contact_id)
