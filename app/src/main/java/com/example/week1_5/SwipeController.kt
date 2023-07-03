@@ -15,8 +15,8 @@ enum class ButtonsState {
     GONE, LEFT_VISIBLE, RIGHT_VISIBLE
 }
 abstract class SwipeControllerActions {
-    open fun delete_contact(position: Int,view:View){}
-    open fun edit_contact(position: Int, view: View){}
+    open fun delete_contact(position: Int){}
+    open fun edit_contact(position: Int){}
 }
 
 
@@ -33,6 +33,7 @@ class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeCont
     var buttonInstance1: RectF? = null;
     var buttonInstance2: RectF? = null;
     private var currentItemViewHolder: RecyclerView.ViewHolder? = null
+    var mPosition:Int=-2
 
 
     override fun getMovementFlags(
@@ -160,6 +161,11 @@ class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeCont
                     adapter.notifyItemChanged(viewHolder.adapterPosition)
                     setItemsClickable(recyclerView, true)
                 }
+                if (viewHolder.adapterPosition!=-1){
+                    mPosition = viewHolder.adapterPosition
+                }
+
+                Log.d("찐테","id=${mPosition}")
             }
             false
         }
@@ -198,7 +204,7 @@ class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeCont
 
         recyclerView.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
-
+                Log.d("View","${v.id}")
                 super.onChildDraw(
                     c,
                     recyclerView,
@@ -214,11 +220,10 @@ class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeCont
 
                 if (buttonInstance1 != null && buttonInstance1!!.contains(event.x, event.y)) {
                     Log.d("tag","왼쪽")
-                    adapter.notifyItemChanged(viewHolder.adapterPosition)
-                    buttonsActions.edit_contact(viewHolder.adapterPosition,v)
+                    buttonsActions.edit_contact(mPosition)
+
                 } else if (buttonInstance2 != null && buttonInstance2!!.contains(event.x, event.y)) {
-                    Log.d("tag","오른쪽")
-                    buttonsActions.delete_contact(viewHolder.adapterPosition,v)
+                    buttonsActions.delete_contact(mPosition)
                 }
 
                 buttonShowedState = ButtonsState.GONE
