@@ -9,44 +9,50 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
-import java.io.File
-import java.util.Date
+import androidx.viewpager2.widget.ViewPager2
+import java.util.*
 
 class ImageViewActivity : AppCompatActivity() {
 
-    private lateinit var imageUri: Uri
-    private lateinit var imageName: String
-    private lateinit var imageDate: Date
+    private lateinit var imageUriList: ArrayList<Uri>
+    private lateinit var imageNameList: ArrayList<String>
+    private lateinit var imageDateList: ArrayList<Date>
+    private var selectedIndex: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_view)
 
-        val imageView = findViewById<ImageView>(R.id.full_image)
+        val viewPager = findViewById<ViewPager2>(R.id.view_pager)
         val deleteButton = findViewById<ImageButton>(R.id.delete_button)
         val infoButton = findViewById<ImageButton>(R.id.info_button)
 
-        imageUri = intent.getParcelableExtra(ImageViewActivity.IMAGE_URI)!!
-        imageName = intent.getStringExtra(ImageViewActivity.IMAGE_NAME)!!
-        imageDate = intent.getSerializableExtra(ImageViewActivity.IMAGE_DATE) as Date
+        selectedIndex = intent.getIntExtra(IMAGE_INDEX, 0)
+        imageUriList = intent.getSerializableExtra(IMAGE_URI_LIST) as ArrayList<Uri>
+        imageNameList = intent.getSerializableExtra(IMAGE_NAME_LIST) as ArrayList<String>
+        imageDateList = intent.getSerializableExtra(IMAGE_DATE_LIST) as ArrayList<Date>
 
-        Glide.with(this).load(imageUri).into(imageView)
+        val imageViewPagerAdapter = ImageViewPagerAdapter(imageUriList)
+        viewPager.adapter = imageViewPagerAdapter
+        viewPager.setCurrentItem(selectedIndex, false)
 
         deleteButton.setOnClickListener {
             AlertDialog.Builder(this)
                 .setTitle("Delete Image")
                 .setMessage("Do you want to delete this image?")
                 .setPositiveButton("Yes") { _, _ ->
-                    deleteImage(imageUri)
+                    deleteImage(imageUriList[viewPager.currentItem])
+                    imageUriList.removeAt(viewPager.currentItem)
+                    imageNameList.removeAt(viewPager.currentItem)
+                    imageDateList.removeAt(viewPager.currentItem)
+                    imageViewPagerAdapter.notifyItemRemoved(viewPager.currentItem)
                 }
                 .setNegativeButton("No", null)
                 .show()
         }
 
-
         infoButton.setOnClickListener {
-            showDialog(imageName, imageDate)
+            showDialog(imageNameList[viewPager.currentItem], imageDateList[viewPager.currentItem])
         }
     }
 
@@ -58,6 +64,7 @@ class ImageViewActivity : AppCompatActivity() {
                 dialog.dismiss()
             }.show()
     }
+
     private fun deleteImage(uri: Uri) {
         try {
             contentResolver.delete(uri, null, null)
@@ -69,17 +76,18 @@ class ImageViewActivity : AppCompatActivity() {
         }
     }
 
-
     companion object {
-        const val IMAGE_URI = "IMAGE_URI"
-        const val IMAGE_NAME = "IMAGE_NAME"
-        const val IMAGE_DATE = "IMAGE_DATE"
+        const val IMAGE_INDEX = "IMAGE_INDEX"
+        const val IMAGE_URI_LIST = "IMAGE_URI_LIST"
+        const val IMAGE_NAME_LIST = "IMAGE_NAME_LIST"
+        const val IMAGE_DATE_LIST = "IMAGE_DATE_LIST"
 
-        fun newIntent(context: Context, imageUri: Uri, imageName: String, imageDate: Date): Intent {
+        fun newIntent(context: Context, selectedIndex: Int, imageUriList: ArrayList<Uri>, imageNameList: ArrayList<String>, imageDateList: ArrayList<Date>): Intent {
             val intent = Intent(context, ImageViewActivity::class.java)
-            intent.putExtra(IMAGE_URI, imageUri)
-            intent.putExtra(IMAGE_NAME, imageName)
-            intent.putExtra(IMAGE_DATE, imageDate)
+            intent.putExtra(IMAGE_INDEX, selectedIndex)
+            intent.putExtra(IMAGE_URI_LIST, imageUriList)
+            intent.putExtra(IMAGE_NAME_LIST, imageNameList)
+            intent.putExtra(IMAGE_DATE_LIST, imageDateList)
             return intent
         }
     }
