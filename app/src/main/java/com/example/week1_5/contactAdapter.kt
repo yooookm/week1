@@ -19,15 +19,7 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
         this.isItemClickable = isClickable
     }
 
-    interface SwipeControllerActions {
-        fun delete_contact(view: View){
-            Log.d("tag","${view.id}")
-//            id = view.contact_id.text()
-        }
-        fun edit_contact(view: View)
-    }
 
-    var swipeControllerActions: SwipeControllerActions? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
@@ -36,11 +28,14 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         holder.contactName.text = itemList[position].name
-        holder.id.text = itemList[position].id
     }
 
     override fun getItemCount(): Int {
         return itemList.count()
+    }
+
+    fun getId(position:Int) : String {
+        return itemList[position].id
     }
 
     inner class ContactViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -65,7 +60,6 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
                 }
             }
         }
-        val id : TextView = itemView.findViewById(R.id.contact_id)
 
     }
 

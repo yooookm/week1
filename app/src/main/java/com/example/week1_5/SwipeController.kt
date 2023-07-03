@@ -13,10 +13,18 @@ import com.example.week1_5.contactAdapter
 enum class ButtonsState {
     GONE, LEFT_VISIBLE, RIGHT_VISIBLE
 }
+abstract class SwipeControllerActions {
+    open fun delete_contact(position: Int){}
+    open fun edit_contact(position: Int){}
+}
 
 
 
-class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() {
+
+
+class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeControllerActions ) : ItemTouchHelper.Callback() {
+
+
     var swipeBack = false
     var isSwipeEnabled = true
     var buttonShowedState: ButtonsState = ButtonsState.GONE
@@ -42,7 +50,6 @@ class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() 
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        Log.d("성공", "스와이프 성공")
     }
 
     override fun convertToAbsoluteDirection(flags: Int, layoutDirection: Int): Int {
@@ -68,7 +75,7 @@ class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() 
         }
         setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         if (buttonShowedState == ButtonsState.GONE) {
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            adapter.notifyItemChanged(viewHolder.adapterPosition)
         }
         currentItemViewHolder = viewHolder
     }
@@ -129,7 +136,9 @@ class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() 
             if (swipeBack) {
                 if (dX < -buttonWidth) buttonShowedState =
                     ButtonsState.RIGHT_VISIBLE
-                if (buttonShowedState !== ButtonsState.GONE) {
+                else if (dX > buttonWidth) buttonShowedState =
+                    ButtonsState.LEFT_VISIBLE
+                if (buttonShowedState == ButtonsState.RIGHT_VISIBLE) {
                     setTouchDownListener(
                         c,
                         recyclerView,
@@ -141,6 +150,9 @@ class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() 
                     )
                     setItemsClickable(recyclerView, false)
                     adapter.setItemClickable(false)
+                }
+                else if (buttonShowedState == ButtonsState.LEFT_VISIBLE){
+                    adapter.notifyItemChanged(viewHolder.adapterPosition)
                 }
             }
             false
@@ -180,6 +192,7 @@ class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() 
 
         recyclerView.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
+
                 super.onChildDraw(
                     c,
                     recyclerView,
@@ -195,12 +208,11 @@ class SwipeController(val adapter: contactAdapter) : ItemTouchHelper.Callback() 
 
                 if (buttonInstance1 != null && buttonInstance1!!.contains(event.x, event.y)) {
                     Log.d("tag","왼쪽")
-                    adapter.swipeControllerActions?.delete_contact(v)
+                    buttonsActions.edit_contact(viewHolder.adapterPosition)
                 } else if (buttonInstance2 != null && buttonInstance2!!.contains(event.x, event.y)) {
                     Log.d("tag","오른쪽")
-                    adapter.swipeControllerActions?.edit_contact(v)
+                    buttonsActions.delete_contact(viewHolder.adapterPosition)
                 }
-
 
                 buttonShowedState = ButtonsState.GONE
             }
