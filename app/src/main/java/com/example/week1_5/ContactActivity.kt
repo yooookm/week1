@@ -1,6 +1,7 @@
 package com.example.week1_5
 
 import SwipeController
+import SwipeControllerActions
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -58,7 +59,20 @@ class ContactActivity : AppCompatActivity() {
         itemlist = ArrayList<contactInfo>()
 
         val adapter = contactAdapter(itemlist)
-        val swipeController = SwipeController(adapter)
+        val swipeController = SwipeController(adapter, object : SwipeControllerActions(){
+            override fun delete_contact(position:Int){
+                val id = adapter.getId(position)
+                deleteContactById(id)
+                adapter.notifyItemRemoved(position)
+                adapter.notifyItemRangeChanged(position, adapter.itemCount)
+            }
+
+            override fun edit_contact(position:Int){
+                val id = adapter.getId(position)
+                showEditContactDialog(id)
+                adapter.notifyItemChanged(position)
+            }
+        })
 
         val contactRV : RecyclerView = findViewById(R.id.contact_RV)
         contactRV.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -90,12 +104,6 @@ class ContactActivity : AppCompatActivity() {
         // Set button click listener
         binding.button2.setOnClickListener {
             showAddContactDialog()
-        }
-        binding.delete.setOnClickListener {
-            deleteContactById("3")
-        }
-        binding.edit.setOnClickListener {
-            editContactByID("1", "차민호", "010-3846-5035")
         }
 
     }
@@ -137,6 +145,46 @@ class ContactActivity : AppCompatActivity() {
             }
         }
     }
+
+    fun showEditContactDialog(id:String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Edit Contact")
+
+        val inputLayout = LinearLayout(this)
+        inputLayout.orientation = LinearLayout.VERTICAL
+
+        val nameInput = EditText(this)
+        nameInput.hint = "Name"
+        nameInput.setText(nameInput.text)
+        inputLayout.addView(nameInput)
+
+        val phoneInput = EditText(this)
+        phoneInput.hint = "Phone number"
+        phoneInput.setText(phoneInput.text)
+        inputLayout.addView(phoneInput)
+
+        builder.setView(inputLayout)
+
+        builder.setPositiveButton("OK") { dialog, _ ->
+            val name = nameInput.text.toString()
+            val phone = phoneInput.text.toString()
+
+            if (name.isNotEmpty() && phone.isNotEmpty()) {
+                editContactByID(id,name,phone)
+                dialog.dismiss()
+            } else {
+                // Show error message
+                Toast.makeText(this, "Please fill all the fields.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        builder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.cancel()
+        }
+
+        builder.show()
+    }
+
 
     fun showAddContactDialog() {
         val builder = AlertDialog.Builder(this)
@@ -246,5 +294,6 @@ class ContactActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "Contact update failed", Toast.LENGTH_SHORT).show()
         }
+        loadContacts()
     }
 }
