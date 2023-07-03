@@ -105,12 +105,6 @@ class ContactActivity : AppCompatActivity() {
         binding.button2.setOnClickListener {
             showAddContactDialog()
         }
-        binding.delete.setOnClickListener {
-            deleteContactById("3")
-        }
-        binding.edit.setOnClickListener {
-            editContactByID("1", "차민호", "010-3846-5035")
-        }
 
     }
 
@@ -161,10 +155,12 @@ class ContactActivity : AppCompatActivity() {
 
         val nameInput = EditText(this)
         nameInput.hint = "Name"
+        nameInput.setText(nameInput.text)
         inputLayout.addView(nameInput)
 
         val phoneInput = EditText(this)
         phoneInput.hint = "Phone number"
+        phoneInput.setText(phoneInput.text)
         inputLayout.addView(phoneInput)
 
         builder.setView(inputLayout)
@@ -298,5 +294,6 @@ class ContactActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "Contact update failed", Toast.LENGTH_SHORT).show()
         }
+        loadContacts()
     }
 }

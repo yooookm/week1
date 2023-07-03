@@ -68,6 +68,9 @@ class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeCont
         actionState: Int, isCurrentlyActive: Boolean
     ) {
         if (actionState == ACTION_STATE_SWIPE) {
+            if (dX != 0f) { // 스와이프가 끝나지 않았다면 버튼을 그리도록 합니다.
+                drawButtons(c, viewHolder)
+            }
             super.onChildDraw(
                 c!!, recyclerView!!,
                 viewHolder!!, dX, dY, actionState, isCurrentlyActive
@@ -118,7 +121,7 @@ class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeCont
     }
 
     fun onDraw(c: Canvas?) {
-        if (currentItemViewHolder != null) {
+        if (currentItemViewHolder != null && buttonShowedState == ButtonsState.RIGHT_VISIBLE) {
             drawButtons(c!!, currentItemViewHolder!!)
         }
     }
