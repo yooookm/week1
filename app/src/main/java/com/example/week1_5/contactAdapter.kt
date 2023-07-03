@@ -1,16 +1,15 @@
 package com.example.week1_5
 
 import android.app.AlertDialog
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast // 추가
 import androidx.recyclerview.widget.RecyclerView
 import com.example.week1_5.contactAdapter.ContactViewHolder
 
 class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapter<ContactViewHolder>() {
+
 
     private var isItemClickable: Boolean = true
 
@@ -19,15 +18,15 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
         this.isItemClickable = isClickable
     }
 
-
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
         return ContactViewHolder(view)
     }
 
+
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         holder.contactName.text = itemList[position].name
+        holder.itemView.isClickable = isItemClickable
     }
 
     override fun getItemCount(): Int {
@@ -50,7 +49,7 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
                     // Add a dialog to show the phone number
                     val builder = AlertDialog.Builder(context)
                     builder.setTitle(itemList[position].name)
-                    builder.setMessage(itemList[position].contactNum) // Use the correct reference here
+                    builder.setMessage(itemList[position].contactNum)
 
                     builder.setPositiveButton("OK") { dialog, _ ->
                         dialog.dismiss()
@@ -62,6 +61,4 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
         }
 
     }
-
-
 }
