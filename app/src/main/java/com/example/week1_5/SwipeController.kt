@@ -79,6 +79,7 @@ class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeCont
         setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         if (buttonShowedState == ButtonsState.GONE) {
             adapter.notifyItemChanged(viewHolder.adapterPosition)
+            setItemsClickable(recyclerView, true)
         }
         currentItemViewHolder = viewHolder
     }
@@ -156,6 +157,7 @@ class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeCont
                 }
                 else if (buttonShowedState == ButtonsState.LEFT_VISIBLE){
                     adapter.notifyItemChanged(viewHolder.adapterPosition)
+                    setItemsClickable(recyclerView, true)
                 }
             }
             false
@@ -232,6 +234,7 @@ class SwipeController(val adapter: contactAdapter, val buttonsActions: SwipeCont
         }
         if (isClickable) {
             // 스와이프 완료 후에는 아이템 클릭 가능
+            Log.d("Tag","스와이프 완료")
             adapter.setItemClickable(true)
         }
     }
