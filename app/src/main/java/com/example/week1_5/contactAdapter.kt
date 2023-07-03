@@ -26,6 +26,7 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         holder.contactName.text = itemList[position].name
+        holder.contactId.text = itemList[position].id
         holder.itemView.isClickable = isItemClickable
     }
 
@@ -33,12 +34,14 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
         return itemList.count()
     }
 
-    fun getId(position:Int) : String {
-        return itemList[position].id
+    fun getId(view:View) : String {
+        val contactId: TextView = view.findViewById(R.id.contact_id)
+        return contactId.text as String
     }
 
     inner class ContactViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val contactName: TextView = itemView.findViewById(R.id.contact_name)
+        val contactId: TextView = itemView.findViewById(R.id.contact_id)
 
         init {
             itemView.setOnClickListener {
