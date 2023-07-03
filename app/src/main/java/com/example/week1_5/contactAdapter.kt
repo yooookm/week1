@@ -1,6 +1,7 @@
 package com.example.week1_5
 
 import android.app.AlertDialog
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
@@ -34,9 +35,11 @@ class contactAdapter(val itemList: ArrayList<contactInfo>) : RecyclerView.Adapte
         return itemList.count()
     }
 
-    fun getId(view:View) : String {
-        val contactId: TextView = view.findViewById(R.id.contact_id)
-        return contactId.text as String
+    fun getId(position: Int) : String {
+//        val contactId: TextView = view.findViewById(R.id.contact_id)
+//        Log.d("Adapter","id=${contactId.text}")
+//        return contactId.text as String
+        return itemList[position].id
     }
 
     inner class ContactViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {

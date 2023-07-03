@@ -61,9 +61,8 @@ class ContactActivity : AppCompatActivity() {
 
         adapter = contactAdapter(itemlist)
         val swipeController = SwipeController(adapter, object : SwipeControllerActions(){
-            override fun delete_contact(position:Int,view:View){
-                val id = adapter.getId(view)
-                Log.d("tag","id = ${id}")
+            override fun delete_contact(position:Int){
+                val id = adapter.getId(position)
                 deleteContactById(id)
 //                adapter.notifyItemRemoved(position)
 //                adapter.notifyItemRangeChanged(position, adapter.itemCount)
@@ -71,9 +70,8 @@ class ContactActivity : AppCompatActivity() {
                 loadContacts()
             }
 
-            override fun edit_contact(position:Int, view: View){
-                val id = adapter.getId(view)
-                Log.d("tag","id = ${id}")
+            override fun edit_contact(position:Int){
+                val id = adapter.getId(position)
                 showEditContactDialog(id)
 //                adapter.notifyItemChanged(position)
                 adapter.notifyDataSetChanged()
