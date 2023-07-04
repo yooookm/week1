@@ -31,6 +31,7 @@ import kotlinx.coroutines.withContext
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
+import java.io.File
 
 class ChatbotActivity : AppCompatActivity() {
     lateinit var imageProcessor: ImageProcessor
@@ -122,17 +123,21 @@ class ChatbotActivity : AppCompatActivity() {
 
         // Get the detection results
         val outputs = model.process(image)
-        val locations = outputs.locationsAsTensorBuffer
-        val classes = outputs.classesAsTensorBuffer
-        val scores = outputs.scoresAsTensorBuffer
-        val numberOfDetections = outputs.numberOfDetectionsAsTensorBuffer
+        val locations = outputs.locationsAsTensorBuffer.floatArray
+        val classes = outputs.classesAsTensorBuffer.floatArray
+        val scores = outputs.scoresAsTensorBuffer.floatArray
+        val numberOfDetections = outputs.numberOfDetectionsAsTensorBuffer.floatArray[0].toInt()
+        Log.d("num of detections", "${numberOfDetections}")
+        // Load the labels from the labels file
+        val labels = loadLabels()
 
         // Create a list to store the tags
         val tags = mutableListOf<String>()
 
         // For each detection, create a tag and add it to the list
-        for (i in 0 until numberOfDetections.floatArray.size) {
-            val tag = "Object: ${classes.floatArray[i]}, Location: ${locations.floatArray[i]}, Score: ${scores.floatArray[i]}"
+        for (i in 0 until numberOfDetections) {
+            val label = labels[classes[i].toInt()]
+            val tag = "Object: $label, Location: ${locations[i]}, Score: ${scores[i]}"
             tags.add(tag)
         }
 
@@ -142,10 +147,16 @@ class ChatbotActivity : AppCompatActivity() {
         // Return the list of tags
         return tags
     }
+
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
         startActivityForResult(intent, REQUEST_GALLERY)
+    }
+    private fun loadLabels(): List<String> {
+        val labelsFile = "labels.txt"
+        val inputStream = assets.open(labelsFile)
+        return inputStream.bufferedReader().readLines()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
