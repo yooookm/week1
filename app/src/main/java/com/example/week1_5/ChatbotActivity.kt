@@ -29,6 +29,8 @@ import com.aallam.openai.client.OpenAI
 import com.example.week1_5.ml.SsdMobilenetV11Metadata1
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.tensorflow.lite.support.image.ImageProcessor
@@ -46,7 +48,7 @@ class ChatbotActivity : AppCompatActivity() {
     private val REQUEST_GALLERY = 101
     val openAI = OpenAI("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")
     var accumulatedInput = ""
-    private var keywordAdapter: KeywordAdapter? = null
+    private var keywordAdapter: DiaryItemAdapter? = null
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
@@ -67,16 +69,11 @@ class ChatbotActivity : AppCompatActivity() {
 
         imageProcessor = ImageProcessor.Builder().add(ResizeOp(300,300, ResizeOp.ResizeMethod.BILINEAR)).build()
 
-
-        val callApiButton = findViewById<Button>(R.id.api_button)
-
         val openGalleryButton = findViewById<Button>(R.id.gallery_button)
-
-        val addKeywordButton = findViewById<Button>(R.id.add_keyword_button)
 
         val completeButton = findViewById<Button>(R.id.complete_button)
 
-        keywordAdapter = KeywordAdapter(mutableListOf()) // 초기화
+        keywordAdapter = DiaryItemAdapter(mutableListOf()) // 초기화
         val keywordRecyclerView = findViewById<RecyclerView>(R.id.keyword_list)
         keywordRecyclerView.layoutManager = LinearLayoutManager(this)
         keywordRecyclerView.adapter = keywordAdapter
@@ -87,68 +84,27 @@ class ChatbotActivity : AppCompatActivity() {
             openGallery()
         }
 
-        addKeywordButton.setOnClickListener {
-            val builder = AlertDialog.Builder(this)
-            val inflater = layoutInflater
-            builder.setTitle("Add a new keyword")
-            val dialogLayout = inflater.inflate(R.layout.alert_dialog_custom_view, null)
-            val editText = dialogLayout.findViewById<EditText>(R.id.editText)
-
-            builder.setView(dialogLayout)
-            builder.setPositiveButton("Add") { dialogInterface, i ->
-                val newKeyword = editText.text.toString()
-                if (newKeyword.isNotBlank()) {
-                    keywordAdapter?.addKeyword(newKeyword)
-                    keywordAdapter?.notifyDataSetChanged()
-                }
-            }
-            builder.show()
-        }
-
         completeButton.setOnClickListener {
-            // RecyclerView의 모든 키워드를 하나의 문자열로 연결
-            val keywordString = keywordAdapter?.getAllKeywords()?.joinToString(" ") ?: ""
-
             CoroutineScope(Dispatchers.IO).launch {
-                val response = callOpenAI(keywordString) // callOpenAI 함수 호출
+                val imageUriList = keywordAdapter?.items?.map { it.imageUri }
 
-                // 응답 결과를 파싱하고 저장
-                val parsedResponse = response?.split("\n")
-
-                // parsedResponse를 로그로 찍기
-                parsedResponse?.forEachIndexed { index, line ->
-                    Log.d("Response Line", "Line $index: $line")
-                }
-
-                // 사용자 응답을 저장하는 리스트
-                val userResponses = mutableListOf<String>()
-
-                // 메인 쓰레드에서 돌아가야하는 코드. 각 질문에 대해 AlertDialog를 띄워 사용자의 답변을 받음
-                withContext(Dispatchers.Main) {
-                    parsedResponse?.forEach { question ->
-                        val builder = AlertDialog.Builder(this@ChatbotActivity)
-                        val inflater = layoutInflater
-                        builder.setTitle(question)
-                        val dialogLayout = inflater.inflate(R.layout.alert_dialog_custom_view, null)
-                        val editText = dialogLayout.findViewById<EditText>(R.id.editText)
-
-                        builder.setView(dialogLayout)
-                        builder.setPositiveButton("Submit") { _, _ ->
-                            val userAnswer = editText.text.toString()
-                            if (userAnswer.isNotBlank()) {
-                                // 질문과 답변을 함께 저장
-                                userResponses.add("$question\nAnswer: $userAnswer")
-                            }
-                        }
-                        builder.show()
+                val keywordsList = keywordAdapter?.items?.map {
+                    async {
+                        callOpenAI(it.tags.joinToString(", "))?.split("\n")?.firstOrNull()
                     }
+                }?.awaitAll()
 
-                    // 사용자 응답을 합쳐서 하나의 문자열로 만듦
-                    val combinedResponses = userResponses.joinToString("\n\n")
-                    Log.d("Combined Responses", combinedResponses)
+                withContext(Dispatchers.Main) {
+                    val intent = Intent(this@ChatbotActivity, QuestionActivity::class.java)
+                    Log.d("constructor","${ArrayList(keywordsList)[0]}")
+                    intent.putParcelableArrayListExtra("imageUriList", ArrayList(imageUriList))
+                    intent.putStringArrayListExtra("keywordsList", ArrayList(keywordsList))
+                    startActivity(intent)
                 }
             }
         }
+
+
 
 
     }
@@ -177,13 +133,14 @@ class ChatbotActivity : AppCompatActivity() {
 
     @OptIn(BetaOpenAI::class)
     private suspend fun callOpenAI(userInput: String): String? {
+        Log.d("tags", "${userInput}")
         val chatCompletionRequest = ChatCompletionRequest(
             model = ModelId("gpt-3.5-turbo"),
             messages = listOf(
                 ChatMessage(
                     role = ChatRole.Assistant,
                     content = "I will give you a keyword related to my day. " +
-                            "Just create 5 interview questions about my thinking or emotion about today related to the keywords or related about some informations that are not included with keywords to write a diary." +
+                            "Create just only one interview question about my thinking or emotion about today related to the keywords or related about some informations that are not included with keywords to write a diary." +
                             "After this QnA, you will use this Question and Answer Pair to write a daily record of me. So please focus on 'today'." +
                             "The format is as follows.\n" +
                             "Number. Content"
@@ -193,10 +150,11 @@ class ChatbotActivity : AppCompatActivity() {
                     content = userInput
                 )
             ),
-            maxTokens = 300
+            maxTokens = 100
         )
 
         val completion: ChatCompletion = openAI.chatCompletion(chatCompletionRequest)
+        Log.d("response", "${completion.choices.first().message?.content}")
         return completion.choices.first().message?.content
     }
 
@@ -253,9 +211,12 @@ class ChatbotActivity : AppCompatActivity() {
         if (requestCode == REQUEST_GALLERY && resultCode == RESULT_OK) {
             val imageUri = data?.data
             if (imageUri != null) {
-                val keywords = processImage(imageUri)
+                val keywords = processImage(imageUri).toMutableList()
                 Log.d("ImageProcess", "Results: \n$keywords")
-                keywords.forEach { keywordAdapter?.addKeyword(it) } // 여기서 null-safe 호출 사용
+
+                val diaryItem = DiaryItem(imageUri, keywords)
+                keywordAdapter?.addItem(diaryItem)
+//                keywords.forEach { keywordAdapter?.addKeyword(it) } // 여기서 null-safe 호출 사용
                 keywordAdapter?.notifyDataSetChanged() // 이미지 처리가 끝난 후에 갱신하도록 이동
             }
         }
