@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.media.ExifInterface
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -32,6 +34,9 @@ import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ChatbotActivity : AppCompatActivity() {
     lateinit var imageProcessor: ImageProcessor
@@ -41,6 +46,7 @@ class ChatbotActivity : AppCompatActivity() {
     val openAI = OpenAI("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")
     private lateinit var viewModel: ChatbotViewModel
     private lateinit var adapter: ChatAdapter
+    var accumulatedInput = ""
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -71,37 +77,29 @@ class ChatbotActivity : AppCompatActivity() {
         adapter = ChatAdapter(viewModel.chatHistory.value!!)
         chatHistoryView.layoutManager = LinearLayoutManager(this)
         chatHistoryView.adapter = adapter
-
         callApiButton.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                val userInput = withContext(Dispatchers.Main) {
-                    val input = chatbox.text.toString()
-                    chatbox.setText("") // Clear the EditText
-                    viewModel.chatHistory.value!!.add(ChatMessage(ChatRole.User, input))
-                    adapter.notifyItemInserted(viewModel.chatHistory.value!!.size - 1)
-                    input
-                }
-                callOpenAI(userInput)
+                callOpenAI(accumulatedInput) // 누적된 입력을 callOpenAI에 전달
+                accumulatedInput = "" // OK 버튼이 눌린 후, 누적된 입력 초기화
             }
-
         }
     }
 
     @OptIn(BetaOpenAI::class)
     private suspend fun callOpenAI(userInput: String) {
         val chatCompletionRequest = ChatCompletionRequest(
-            model = ModelId("gpt-3.5-turbo"),
+            model = ModelId("text-davinci-003"),
             messages = listOf(
                 ChatMessage(
                     role = ChatRole.Assistant,
-                    content = "You are my girlfriend. Answer me kindly like a girlfriend. But in informal speech. Sympathize with my feelings."
+                    content = "If I give you a keyword, please make 5 questions about today related to those keyword. Those questions will be used to write a daily dairy for today"
                 ),
                 ChatMessage(
                     role = ChatRole.User,
                     content = userInput
                 )
             ),
-            maxTokens = 50
+            maxTokens = 300
         )
 
         val completion: ChatCompletion = openAI.chatCompletion(chatCompletionRequest)
@@ -123,36 +121,37 @@ class ChatbotActivity : AppCompatActivity() {
 
         // Get the detection results
         val outputs = model.process(image)
-        val locations = outputs.locationsAsTensorBuffer.floatArray
         val classes = outputs.classesAsTensorBuffer.floatArray
-        val scores = outputs.scoresAsTensorBuffer.floatArray
         val numberOfDetections = outputs.numberOfDetectionsAsTensorBuffer.floatArray[0].toInt()
-        Log.d("num of detections", "${numberOfDetections}")
+
         // Load the labels from the labels file
         val labels = loadLabels()
 
-        // Create a list to store the tags
-        val tags = mutableListOf<String>()
+        // Create a list to store the objects
+        val objects = mutableListOf<String>()
 
-        // For each detection, create a tag and add it to the list
+        // For each detection, create an object and add it to the list
         for (i in 0 until numberOfDetections) {
             val label = labels[classes[i].toInt()]
-            val tag = "Object: $label, Location: ${locations[i]}, Score: ${scores[i]}"
-            tags.add(tag)
+            objects.add(label)
         }
 
         // Release model resources
         model.close()
 
-        // Return the list of tags
-        return tags
+        // Return the list of objects without duplicates
+        return objects.distinct()
     }
+
 
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
-        startActivityForResult(intent, REQUEST_GALLERY)
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)  // 여러 이미지를 선택할 수 있도록 설정
+        startActivityForResult(Intent.createChooser(intent, "Select Pictures"), REQUEST_GALLERY)
     }
+
+
     private fun loadLabels(): List<String> {
         val labelsFile = "labels.txt"
         val inputStream = assets.open(labelsFile)
@@ -162,11 +161,35 @@ class ChatbotActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_GALLERY && resultCode == RESULT_OK) {
-            val imageUri = data?.data
-            val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, imageUri)
-            val tags = image_process(bitmap)
-            Log.d("ImageProcess", "Tags: ${tags.joinToString()}")
+            val clipData = data?.clipData
+            val resultBuilder = StringBuilder()
+
+            if (clipData != null) {  // 여러 이미지가 선택된 경우
+                for (i in 0 until clipData.itemCount) {
+                    val imageUri = clipData.getItemAt(i).uri
+                    val result = processImage(imageUri)
+                    resultBuilder.append(result).append("\n")
+                }
+            } else {  // 단일 이미지가 선택된 경우
+                val imageUri = data?.data
+                if (imageUri != null) {
+                    val result = processImage(imageUri)
+                    resultBuilder.append(result)
+                }
+            }
+
+            Log.d("ImageProcess", "Results: \n$resultBuilder")
         }
+    }
+
+    private fun processImage(imageUri: Uri): String {
+        val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, imageUri)
+        val tags = image_process(bitmap)
+        accumulatedInput += " " + tags.joinToString()
+
+
+        // 날짜 및 태그를 포함하는 결과 문자열 생성
+        return "${tags.joinToString()}"
     }
 
 
