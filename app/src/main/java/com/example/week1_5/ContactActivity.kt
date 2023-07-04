@@ -293,7 +293,10 @@ class ContactActivity : AppCompatActivity() {
 
     fun deleteContactById(id: String) {
         val contactUri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, id)
-        val rowsDeleted = contentResolver.delete(contactUri, null, null)
+        val rowsDeleted = contentResolver.delete(contactUri, nu
+
+
+                ll, null)
 
         if (rowsDeleted > 0) {
             Log.i("ContactUtils", "Deleted contact with id: $id")
