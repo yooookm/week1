@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun BtnClick(v: View){
-        val intent = Intent(this, FreeActivity::class.java)
+        val intent = Intent(this, ChatbotActivity::class.java)
         startActivity(intent)
     }
 }
