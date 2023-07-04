@@ -18,6 +18,12 @@
             android:background="@drawable/tag_background"
             android:paddingHorizontal="10dp"
             android:text="Tag" />
+        <ImageButton
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_delete" />
 
 
 

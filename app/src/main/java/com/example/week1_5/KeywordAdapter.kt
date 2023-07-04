@@ -1,50 +1,110 @@
 package com.example.week1_5
 
-import android.util.Log
+import android.content.Context
+import android.net.Uri
+import android.os.Parcel
+import android.os.Parcelable
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.week1_5.ImageViewActivity
+import com.example.week1_5.R
+import com.example.week1_5.DiaryItem
+import java.util.Date
 
-class KeywordAdapter(private val keywords: MutableList<String>) : RecyclerView.Adapter<KeywordAdapter.KeywordViewHolder>() {
+class DiaryItemAdapter(val items: MutableList<DiaryItem>,  val GalleryDiary: MutableList<String>) :
+    RecyclerView.Adapter<DiaryItemAdapter.DiaryItemViewHolder>() {
 
-    inner class KeywordViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val keywordTextView: TextView = view.findViewById(R.id.keyword_text)
+    inner class DiaryItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val imageView: ImageView = view.findViewById(R.id.imageView)
+        val tagLayout: LinearLayout = view.findViewById(R.id.tag_layout)
+        val addTagButton: Button = view.findViewById(R.id.add_tag_button)
+        val gallerydiaryView: TextView = view.findViewById(R.id.gallery_diary)
+    }
 
-        init {
-            view.setOnClickListener {
-                val position = adapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    removeKeyword(position)
-                }
-            }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DiaryItemViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.diary_item, parent, false)
+        return DiaryItemViewHolder(view)
+    }
+
+    override fun getItemCount(): Int = items.size
+
+    override fun onBindViewHolder(holder: DiaryItemViewHolder, position: Int) {
+        val item = items[position]
+
+        holder.imageView.setImageURI(item.imageUri)
+
+        holder.tagLayout.removeAllViews() // Clear all existing views
+        for (tag in item.tags) {
+            val tagView = createTagView(tag, holder.itemView.context, item)
+            holder.tagLayout.addView(tagView)
+        }
+
+        holder.addTagButton.setOnClickListener {
+            // Show dialog and add tag
+            showDialogAndAddTag(holder.itemView.context, item)
+        }
+
+        if (position < GalleryDiary.size) {
+            holder.gallerydiaryView.text = GalleryDiary[position]
+            holder.gallerydiaryView.visibility = View.VISIBLE
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KeywordViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.keyword_item, parent, false)
-        return KeywordViewHolder(view)
+
+
+
+    private fun createTagView(tag: String, context: Context, item: DiaryItem): View {
+        val inflater = LayoutInflater.from(context)
+        val tagView = inflater.inflate(R.layout.keyword_item, null, false)
+
+        val textView = tagView.findViewById<TextView>(R.id.tag_text)
+        textView.text = tag
+
+        val deleteButton = tagView.findViewById<ImageButton>(R.id.delete_button)
+        deleteButton.setOnClickListener {
+            item.tags.remove(tag)
+            notifyDataSetChanged()
+        }
+
+        return tagView
     }
 
-    override fun getItemCount(): Int = keywords.size
 
-    override fun onBindViewHolder(holder: KeywordViewHolder, position: Int) {
-        holder.keywordTextView.text = keywords[position]
+    fun addItem(diaryItem: DiaryItem) {
+        this.items.add(diaryItem)
+    }
+    private fun showDialogAndAddTag(context: Context, item: DiaryItem) {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+        builder.setTitle("Add Tag")
+
+        val input = EditText(context)
+        input.inputType = InputType.TYPE_CLASS_TEXT
+        builder.setView(input)
+
+        builder.setPositiveButton("OK") { dialog, _ ->
+            val tag = input.text.toString()
+            if (tag.isNotEmpty()) {
+                item.tags.add(tag)
+                notifyDataSetChanged()  // Update RecyclerView
+            }
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+
+        builder.show()
     }
 
-    fun addKeyword(keyword: String) {
-        keywords.add(keyword)
-        Log.d("KeywordAdapter", "Added keyword: $keyword")
-        notifyItemInserted(keywords.size - 1)
-    }
-
-    fun removeKeyword(position: Int) {
-        keywords.removeAt(position)
-        notifyItemRemoved(position)
-    }
-
-    fun getAllKeywords(): List<String> {
-        return keywords
-    }
 }
