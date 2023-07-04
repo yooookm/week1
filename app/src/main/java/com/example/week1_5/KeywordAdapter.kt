@@ -23,13 +23,14 @@ import com.example.week1_5.R
 import com.example.week1_5.DiaryItem
 import java.util.Date
 
-class DiaryItemAdapter(val items: MutableList<DiaryItem>) :
+class DiaryItemAdapter(val items: MutableList<DiaryItem>,  val GalleryDiary: MutableList<String>) :
     RecyclerView.Adapter<DiaryItemAdapter.DiaryItemViewHolder>() {
 
     inner class DiaryItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.imageView)
         val tagLayout: LinearLayout = view.findViewById(R.id.tag_layout)
         val addTagButton: Button = view.findViewById(R.id.add_tag_button)
+        val gallerydiaryView: TextView = view.findViewById(R.id.gallery_diary)
     }
 
 
@@ -55,7 +56,13 @@ class DiaryItemAdapter(val items: MutableList<DiaryItem>) :
             // Show dialog and add tag
             showDialogAndAddTag(holder.itemView.context, item)
         }
+
+        if (position < GalleryDiary.size) {
+            holder.gallerydiaryView.text = GalleryDiary[position]
+            holder.gallerydiaryView.visibility = View.VISIBLE
+        }
     }
+
 
 
 

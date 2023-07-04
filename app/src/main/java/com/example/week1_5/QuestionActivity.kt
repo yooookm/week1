@@ -1,5 +1,7 @@
 package com.example.week1_5
 
+import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
@@ -38,6 +40,15 @@ class QuestionActivity : AppCompatActivity() {
             questionAdapter.notifyDataSetChanged() // 버튼이 클릭될 때마다 RecyclerView 갱신
 
             chatbox.setText("")
+
+            if (questionAdapter.questions.size == questionAdapter.answers.size) {
+                val result = questionAdapter.viewBack()
+                val intent = Intent().apply {
+                    putExtra("RESULT", result)
+                }
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            }
         }
     }
 }

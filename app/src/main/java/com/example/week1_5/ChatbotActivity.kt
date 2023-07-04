@@ -1,6 +1,7 @@
 package com.example.week1_5
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -46,6 +47,8 @@ class ChatbotActivity : AppCompatActivity() {
     lateinit var bitmap: Bitmap
     private val REQUEST_GALLERY_PERMISSION = 100
     private val REQUEST_GALLERY = 101
+    private lateinit var GalleryDiary: MutableList<String>
+
     val openAI = OpenAI("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")
     var accumulatedInput = ""
     private var keywordAdapter: DiaryItemAdapter? = null
@@ -67,13 +70,15 @@ class ChatbotActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.free_view)
 
+        GalleryDiary = mutableListOf()
         imageProcessor = ImageProcessor.Builder().add(ResizeOp(300,300, ResizeOp.ResizeMethod.BILINEAR)).build()
 
         val openGalleryButton = findViewById<Button>(R.id.gallery_button)
 
         val completeButton = findViewById<Button>(R.id.complete_button)
 
-        keywordAdapter = DiaryItemAdapter(mutableListOf()) // 초기화
+        keywordAdapter = DiaryItemAdapter(mutableListOf(), GalleryDiary)
+        // 초기화
         val keywordRecyclerView = findViewById<RecyclerView>(R.id.keyword_list)
         keywordRecyclerView.layoutManager = LinearLayoutManager(this)
         keywordRecyclerView.adapter = keywordAdapter
@@ -99,7 +104,7 @@ class ChatbotActivity : AppCompatActivity() {
                     Log.d("constructor","${ArrayList(keywordsList)[0]}")
                     intent.putParcelableArrayListExtra("imageUriList", ArrayList(imageUriList))
                     intent.putStringArrayListExtra("keywordsList", ArrayList(keywordsList))
-                    startActivity(intent)
+                    startActivityForResult(intent, 1)
                 }
             }
         }
@@ -109,7 +114,7 @@ class ChatbotActivity : AppCompatActivity() {
 
     }
     @OptIn(BetaOpenAI::class)
-    private suspend fun diaryWithMyResponse(userInput: String) {
+    private suspend fun diaryWithMyResponse(userInput: String?) : String{
         val chatCompletionRequest = ChatCompletionRequest(
             model = ModelId("gpt-3.5-turbo"),
             messages = listOf(
@@ -129,6 +134,7 @@ class ChatbotActivity : AppCompatActivity() {
         withContext(Dispatchers.Main) {
             Log.d("Result", "${completion.choices.first().message?.content}")
         }
+        return completion.choices.first().message?.content.toString()
     }
 
     @OptIn(BetaOpenAI::class)
@@ -208,6 +214,7 @@ class ChatbotActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if (requestCode == REQUEST_GALLERY && resultCode == RESULT_OK) {
             val imageUri = data?.data
             if (imageUri != null) {
@@ -216,11 +223,27 @@ class ChatbotActivity : AppCompatActivity() {
 
                 val diaryItem = DiaryItem(imageUri, keywords)
                 keywordAdapter?.addItem(diaryItem)
-//                keywords.forEach { keywordAdapter?.addKeyword(it) } // 여기서 null-safe 호출 사용
-                keywordAdapter?.notifyDataSetChanged() // 이미지 처리가 끝난 후에 갱신하도록 이동
+                keywordAdapter?.notifyDataSetChanged()
             }
         }
+        // 추가된 부분
+        else if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            // 결과를 받아옵니다.
+            val result = data?.getStringExtra("RESULT")
+
+            CoroutineScope(Dispatchers.IO).launch {
+                result?.split("\n")?.map {
+                    GalleryDiary.add(diaryWithMyResponse(it))
+                }
+
+                withContext(Dispatchers.Main){
+                    keywordAdapter?.notifyDataSetChanged()
+                }
+            }
+
+        }
     }
+
 
 
 
@@ -232,6 +255,5 @@ class ChatbotActivity : AppCompatActivity() {
         // 날짜 및 태그를 포함하는 결과 List<String> 반환
         return tags
     }
-
 
 }
