@@ -12,6 +12,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -44,10 +45,8 @@ class ChatbotActivity : AppCompatActivity() {
     private val REQUEST_GALLERY_PERMISSION = 100
     private val REQUEST_GALLERY = 101
     val openAI = OpenAI("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")
-    private lateinit var viewModel: ChatbotViewModel
-    private lateinit var adapter: ChatAdapter
     var accumulatedInput = ""
-
+    private var keywordAdapter: KeywordAdapter? = null
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
@@ -60,39 +59,107 @@ class ChatbotActivity : AppCompatActivity() {
             }
         }
     }
+
     @OptIn(BetaOpenAI::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.free_view)
-        imageProcessor = ImageProcessor.Builder().add(ResizeOp(300,300, ResizeOp.ResizeMethod.BILINEAR)).build()
-        viewModel = ViewModelProvider(this).get(ChatbotViewModel::class.java)
 
-        val chatbox = findViewById<EditText>(R.id.chatbox)
+        imageProcessor = ImageProcessor.Builder().add(ResizeOp(300,300, ResizeOp.ResizeMethod.BILINEAR)).build()
+
+
         val callApiButton = findViewById<Button>(R.id.api_button)
-        val chatHistoryView = findViewById<RecyclerView>(R.id.chat_history)
+
         val openGalleryButton = findViewById<Button>(R.id.gallery_button)
+
+        val addKeywordButton = findViewById<Button>(R.id.add_keyword_button)
+
+        val completeButton = findViewById<Button>(R.id.complete_button)
+
+        keywordAdapter = KeywordAdapter(mutableListOf()) // 초기화
+        val keywordRecyclerView = findViewById<RecyclerView>(R.id.keyword_list)
+        keywordRecyclerView.layoutManager = LinearLayoutManager(this)
+        keywordRecyclerView.adapter = keywordAdapter
+
+
+
         openGalleryButton.setOnClickListener {
             openGallery()
         }
-        adapter = ChatAdapter(viewModel.chatHistory.value!!)
-        chatHistoryView.layoutManager = LinearLayoutManager(this)
-        chatHistoryView.adapter = adapter
-        callApiButton.setOnClickListener {
+
+        addKeywordButton.setOnClickListener {
+            val builder = AlertDialog.Builder(this)
+            val inflater = layoutInflater
+            builder.setTitle("Add a new keyword")
+            val dialogLayout = inflater.inflate(R.layout.alert_dialog_custom_view, null)
+            val editText = dialogLayout.findViewById<EditText>(R.id.editText)
+
+            builder.setView(dialogLayout)
+            builder.setPositiveButton("Add") { dialogInterface, i ->
+                val newKeyword = editText.text.toString()
+                if (newKeyword.isNotBlank()) {
+                    keywordAdapter?.addKeyword(newKeyword)
+                    keywordAdapter?.notifyDataSetChanged()
+                }
+            }
+            builder.show()
+        }
+
+        completeButton.setOnClickListener {
+            // RecyclerView의 모든 키워드를 하나의 문자열로 연결
+            val keywordString = keywordAdapter?.getAllKeywords()?.joinToString(" ") ?: ""
+
             CoroutineScope(Dispatchers.IO).launch {
-                callOpenAI(accumulatedInput) // 누적된 입력을 callOpenAI에 전달
-                accumulatedInput = "" // OK 버튼이 눌린 후, 누적된 입력 초기화
+                val response = callOpenAI(keywordString) // callOpenAI 함수 호출
+
+                // 응답 결과를 파싱하고 저장
+                val parsedResponse = response?.split("\n")
+
+                // parsedResponse를 로그로 찍기
+                parsedResponse?.forEachIndexed { index, line ->
+                    Log.d("Response Line", "Line $index: $line")
+                }
+
+                // 사용자 응답을 저장하는 리스트
+                val userResponses = mutableListOf<String>()
+
+                // 메인 쓰레드에서 돌아가야하는 코드. 각 질문에 대해 AlertDialog를 띄워 사용자의 답변을 받음
+                withContext(Dispatchers.Main) {
+                    parsedResponse?.forEach { question ->
+                        val builder = AlertDialog.Builder(this@ChatbotActivity)
+                        val inflater = layoutInflater
+                        builder.setTitle(question)
+                        val dialogLayout = inflater.inflate(R.layout.alert_dialog_custom_view, null)
+                        val editText = dialogLayout.findViewById<EditText>(R.id.editText)
+
+                        builder.setView(dialogLayout)
+                        builder.setPositiveButton("Submit") { _, _ ->
+                            val userAnswer = editText.text.toString()
+                            if (userAnswer.isNotBlank()) {
+                                // 질문과 답변을 함께 저장
+                                userResponses.add("$question\nAnswer: $userAnswer")
+                            }
+                        }
+                        builder.show()
+                    }
+
+                    // 사용자 응답을 합쳐서 하나의 문자열로 만듦
+                    val combinedResponses = userResponses.joinToString("\n\n")
+                    Log.d("Combined Responses", combinedResponses)
+                }
             }
         }
-    }
 
+
+    }
     @OptIn(BetaOpenAI::class)
-    private suspend fun callOpenAI(userInput: String) {
+    private suspend fun diaryWithMyResponse(userInput: String) {
         val chatCompletionRequest = ChatCompletionRequest(
-            model = ModelId("text-davinci-003"),
+            model = ModelId("gpt-3.5-turbo"),
             messages = listOf(
                 ChatMessage(
                     role = ChatRole.Assistant,
-                    content = "If I give you a keyword, please make 5 questions about today related to those keyword. Those questions will be used to write a daily dairy for today"
+                    content = "I will give you an answer with your question about what you asked. Please take a good look and write a diary about my day."
                 ),
                 ChatMessage(
                     role = ChatRole.User,
@@ -105,13 +172,36 @@ class ChatbotActivity : AppCompatActivity() {
         val completion: ChatCompletion = openAI.chatCompletion(chatCompletionRequest)
         withContext(Dispatchers.Main) {
             Log.d("Result", "${completion.choices.first().message?.content}")
-            Toast.makeText(this@ChatbotActivity, "${completion.choices.first().message?.content}", Toast.LENGTH_SHORT).show()
-            viewModel.chatHistory.value!!.add(ChatMessage(ChatRole.Assistant, completion.choices.first().message?.content ?: "")) // Store AI's response
-            adapter.notifyItemInserted(viewModel.chatHistory.value!!.size - 1) // Notify the adapter that the data set has changed
         }
     }
 
+    @OptIn(BetaOpenAI::class)
+    private suspend fun callOpenAI(userInput: String): String? {
+        val chatCompletionRequest = ChatCompletionRequest(
+            model = ModelId("gpt-3.5-turbo"),
+            messages = listOf(
+                ChatMessage(
+                    role = ChatRole.Assistant,
+                    content = "I will give you a keyword related to my day. " +
+                            "Just create 5 interview questions about my thinking or emotion about today related to the keywords or related about some informations that are not included with keywords to write a diary." +
+                            "After this QnA, you will use this Question and Answer Pair to write a daily record of me. So please focus on 'today'." +
+                            "The format is as follows.\n" +
+                            "Number. Content"
+                ),
+                ChatMessage(
+                    role = ChatRole.User,
+                    content = userInput
+                )
+            ),
+            maxTokens = 300
+        )
+
+        val completion: ChatCompletion = openAI.chatCompletion(chatCompletionRequest)
+        return completion.choices.first().message?.content
+    }
+
     private fun image_process(bitmap: Bitmap): List<String> {
+        Log.d("image_ process", "작동 함")
         // Load the model
         val model = SsdMobilenetV11Metadata1.newInstance(this)
 
@@ -161,35 +251,25 @@ class ChatbotActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_GALLERY && resultCode == RESULT_OK) {
-            val clipData = data?.clipData
-            val resultBuilder = StringBuilder()
-
-            if (clipData != null) {  // 여러 이미지가 선택된 경우
-                for (i in 0 until clipData.itemCount) {
-                    val imageUri = clipData.getItemAt(i).uri
-                    val result = processImage(imageUri)
-                    resultBuilder.append(result).append("\n")
-                }
-            } else {  // 단일 이미지가 선택된 경우
-                val imageUri = data?.data
-                if (imageUri != null) {
-                    val result = processImage(imageUri)
-                    resultBuilder.append(result)
-                }
+            val imageUri = data?.data
+            if (imageUri != null) {
+                val keywords = processImage(imageUri)
+                Log.d("ImageProcess", "Results: \n$keywords")
+                keywords.forEach { keywordAdapter?.addKeyword(it) } // 여기서 null-safe 호출 사용
+                keywordAdapter?.notifyDataSetChanged() // 이미지 처리가 끝난 후에 갱신하도록 이동
             }
-
-            Log.d("ImageProcess", "Results: \n$resultBuilder")
         }
     }
 
-    private fun processImage(imageUri: Uri): String {
+
+
+    private fun processImage(imageUri: Uri): List<String> {
         val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, imageUri)
         val tags = image_process(bitmap)
         accumulatedInput += " " + tags.joinToString()
 
-
-        // 날짜 및 태그를 포함하는 결과 문자열 생성
-        return "${tags.joinToString()}"
+        // 날짜 및 태그를 포함하는 결과 List<String> 반환
+        return tags
     }
 
 
