@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="#000000" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp">
 
@@ -19,17 +21,16 @@
             android:id="@+id/delete_button"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/circle_button"
-            android:src="@android:drawable/ic_delete" />
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/circular_button_background"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <ImageButton
             android:id="@+id/info_button"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:background="@drawable/circle_button"
-            android:src="@android:drawable/ic_dialog_info" />
+            android:background="@drawable/circular_button_background"
+            tools:ignore="SpeakableTextPresentCheck" />
 
     </LinearLayout>
-
 </FrameLayout>

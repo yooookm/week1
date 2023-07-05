@@ -16,6 +16,8 @@
             android:id="@+id/image"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:background="@drawable/message_bubble_purple"
+            android:layout_marginBottom="10dp"
             />
 
         <TextView
@@ -25,7 +27,10 @@
             android:textSize="16sp"
             android:padding="5dp"
             android:paddingRight="20dp"
-            android:text="question"/>
+            android:text="question"
+            android:background="@drawable/message_bubble_purple"
+            android:layout_marginBottom="10dp"
+            />
 
     </LinearLayout>
 
@@ -39,6 +44,8 @@
         android:textSize="16sp"
         android:padding="5dp"
         android:paddingLeft="20dp"
-        android:text="answer"/>
+        android:text="answer"
+        android:background="@drawable/message_bubble"
+        android:layout_marginBottom="10dp"/>
 
 </RelativeLayout>

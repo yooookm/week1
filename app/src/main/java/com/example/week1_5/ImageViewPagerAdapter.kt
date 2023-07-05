@@ -20,6 +20,7 @@ class ImageViewPagerAdapter(private val imageUriList: ArrayList<Uri>) : Recycler
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.imageView.scaleType = ImageView.ScaleType.FIT_CENTER
         Glide.with(holder.itemView.context).load(imageUriList[position]).into(holder.imageView)
     }
 
@@ -27,3 +28,4 @@ class ImageViewPagerAdapter(private val imageUriList: ArrayList<Uri>) : Recycler
         return imageUriList.size
     }
 }
+
