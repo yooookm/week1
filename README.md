@@ -3,7 +3,7 @@
 - 사용자가 사진을 고르면 이미지 라벨링을 통해 태그를 생성합니다.
 - 생성한 태그를 기반으로 GPT가 사용자에 맞는 질문을 합니다.
 - 질문에 대한 답을 활용하여 각 사진에 대한 일기를 작성합니다.
-  <img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673.jpg" width="500">
+<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673.jpg" width="200">
 
 
 ## 개발 환경
@@ -20,8 +20,8 @@
 - 상세정보에는 인물의 이름과 번호가 표시됩니다.
 - add 버튼을 누르면 연락처가 추가됩니다.
 - 인물 리스트의 인물을 좌측으로 스와이프하여 수정과 삭제를 할 수 있습니다.
-<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_01.jpg" width="500">
-<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_02.jpg" width="500">
+<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_01.jpg" width="200">
+<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_02.jpg" width="200">
 
 
 #### 기술 설명
@@ -33,7 +33,7 @@
 - 사용자에게 연락처에 대한 권한을 요청하여 외부 저장소에 접근하였다.
 - 사진 데이터를 쿼리문을 활용해 조회, 수정, 삭제 등을 구현하였다
 - 우측 하단 카메라 버튼을 누르면 카메라 앱과 연결된다
-  <img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_03.jpg" width="500">
+ <img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_03.jpg" width="200">
 
 #### 기술설명
 - viewPager을 통해 사진 확대&축소가 가능하고 각 사진간 스와이프로 이동이 가능하다
@@ -43,9 +43,9 @@
 - 이미지 라벨링을 통해 사진에서 태그를 추출하고, 사용자는 태그 수정&삭제하여 정확도를 올린다
 - 사진에 대한 태그를 통해 GPT가 사진에 대한 구체적인 질문을 작성하여 채팅 형식으로 인터뷰한다
 - 질문에 대한 답변을 기반으로 각 사진에 대한 일기를 쓴다
-<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_04.jpg" width="500">
-<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_05.jpg" width="500">
-<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_06.jpg" width="500">
+<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_04.jpg" width="200">
+<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_05.jpg" width="200">
+<img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_06.jpg" width="200">
 
 
 #### 기술 설명
