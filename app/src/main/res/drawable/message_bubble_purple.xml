@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- res/drawable/message_bubble_purple.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#DABADE"/> <!-- 연보라색 코드 -->
+    <solid android:color="@color/chatColor"/> <!-- 연보라색 코드 -->
     <corners android:radius="10dp" />
     <padding
         android:left="10dp"
