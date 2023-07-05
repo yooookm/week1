@@ -23,18 +23,21 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_gravity="center"
-            android:layout_marginLeft="50dp">
+            android:layout_marginLeft="30dp">
 
             <TextView
                 android:text="Plumping"
+                android:id="@+id/card_header"
                 style="@style/viewParent.headerText"
                 android:textColor="@color/primaryTextColor" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/card_subheader"
                 android:text="200+ Skilled plumbers ready to work"
                 android:textStyle="bold"
+                android:layout_marginEnd="30dp"
                 android:textSize="14sp"/>
 
         </LinearLayout>
