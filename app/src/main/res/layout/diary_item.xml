@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/diary_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="#E8DCE9">
 
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="200dp"
+        android:layout_marginBottom="20dp"
         android:scaleType="centerCrop" />
 
     <HorizontalScrollView
@@ -28,23 +31,27 @@
                 android:id="@+id/tag_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginEnd="8dp">
             </LinearLayout>
 
             <Button
                 android:id="@+id/add_tag_button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Add Tag"/>
+                android:layout_height="40dp"
+                android:text="Add Tag"
+                tools:ignore="TouchTargetSizeCheck" />
 
         </LinearLayout>
 
     </HorizontalScrollView>
     <TextView
+        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/gallery_diary"
         android:text="Preview"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:background="@drawable/message_bubble"/>
 
 </LinearLayout>

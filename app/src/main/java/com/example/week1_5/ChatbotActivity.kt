@@ -120,14 +120,16 @@ class ChatbotActivity : AppCompatActivity() {
             messages = listOf(
                 ChatMessage(
                     role = ChatRole.Assistant,
-                    content = "I will give you an answer with your question about what you asked. Please take a good look and write a diary about my day."
+                    content = "I will give you an answer with your question about what you asked. Please take a good look and write a diary about my day. Do not include 'Dear Diary'. Not in format of letter" +
+                            "Think as you write a diary of my day in my diary" +
+                            "Do not include the Date information"
                 ),
                 ChatMessage(
                     role = ChatRole.User,
                     content = userInput
                 )
             ),
-            maxTokens = 300
+            maxTokens = 100
         )
 
         val completion: ChatCompletion = openAI.chatCompletion(chatCompletionRequest)

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#9F87A5"/> <!-- 회색이 섞인 보라색 -->
+    <solid android:color="#D8D8D8"/>
     <corners android:radius="10dp" />
     <padding
         android:left="10dp"
