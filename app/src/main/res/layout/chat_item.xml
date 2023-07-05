@@ -30,6 +30,7 @@
             android:text="question"
             android:background="@drawable/message_bubble_purple"
             android:layout_marginBottom="10dp"
+            android:layout_marginRight="40dp"
             />
 
     </LinearLayout>
@@ -46,6 +47,7 @@
         android:paddingLeft="20dp"
         android:text="answer"
         android:background="@drawable/message_bubble"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="40dp"/>
 
 </RelativeLayout>
