@@ -49,7 +49,7 @@ class ChatbotActivity : AppCompatActivity() {
     private val REQUEST_GALLERY = 101
     private lateinit var GalleryDiary: MutableList<String>
 
-    val openAI = OpenAI("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")
+    val openAI = OpenAI("YOUR-API-KEY")
     var accumulatedInput = ""
     private var keywordAdapter: DiaryItemAdapter? = null
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -122,14 +122,15 @@ class ChatbotActivity : AppCompatActivity() {
                     role = ChatRole.Assistant,
                     content = "I will give you an answer with your question about what you asked. Please take a good look and write a diary about my day. Do not include 'Dear Diary'. Not in format of letter" +
                             "Think as you write a diary of my day in my diary" +
-                            "Do not include the Date information"
+                            "Do not include the Date information" +
+                            "Less than 100 words in English"
                 ),
                 ChatMessage(
                     role = ChatRole.User,
                     content = userInput
                 )
             ),
-            maxTokens = 50
+            maxTokens = 100
         )
 
         val completion: ChatCompletion = openAI.chatCompletion(chatCompletionRequest)
