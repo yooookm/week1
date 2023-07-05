@@ -6,8 +6,8 @@
 <img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673.jpg" width="200">
 
 ## 팀원
-- 차민호
-- 유경미
+* [차민호](https://github.com/Cha-Minho)  
+* [유경미](https://github.com/YooKyungmi)  
 
 ## 개발 환경
 - **OS**: Android (minSdk: 19, targetSdk: 31)
