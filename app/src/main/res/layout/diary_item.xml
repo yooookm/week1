@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp"
-    android:background="#E8DCE9">
+    android:padding="8dp">
 
 
     <ImageView
@@ -40,6 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:text="Add Tag"
+                android:backgroundTint="@color/buttonColor"
                 tools:ignore="TouchTargetSizeCheck" />
 
         </LinearLayout>

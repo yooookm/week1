@@ -16,6 +16,9 @@
     <color name="primaryTextColor">#25C0DE</color>
     <color name="chatColor">#CD2198C5</color>
     <color name="whiteTextColor">#fff</color>
+    <color name="tagColor">#127E91</color>
+    <color name="buttonColor">#0C505C</color>
+
     <color name="frutorial_title">#4c4c4c</color>
 
     <!--colors for light mode-->
