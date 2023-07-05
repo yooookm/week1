@@ -39,7 +39,7 @@
  <img src="https://github.com/YooKyungmi/week1/blob/main/screenshot/KakaoTalk_20230705_191243673_03.jpg" width="200">
 
 #### 기술설명
-- viewPager을 통해 사진 확대&축소가 가능하고 각 사진간 스와이프로 이동이 가능하다
+- viewPager을 통해 각 사진간 스와이프로 이동이 가능하다
 
 ### 탭3 – 이미지 라벨링과 OpenAI API를 통한 다이어리 작성
 - 사용자가 갤러리에서 선택한 사진들을 사용하여 하루 일기를 작성한다
