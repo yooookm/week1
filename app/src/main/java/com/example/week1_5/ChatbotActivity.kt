@@ -129,7 +129,7 @@ class ChatbotActivity : AppCompatActivity() {
                     content = userInput
                 )
             ),
-            maxTokens = 100
+            maxTokens = 50
         )
 
         val completion: ChatCompletion = openAI.chatCompletion(chatCompletionRequest)

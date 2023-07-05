@@ -6,12 +6,25 @@
     android:layout_height="match_parent"
     android:id="@+id/together">
 
+    <TextView
+        android:id="@+id/contact_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="18dp"
+        android:text="Contact"
+        android:textSize="24sp"
+        android:background="#25C0DE"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contact_RV"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/contact_title"
         app:layout_constraintBottom_toTopOf="@+id/button2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

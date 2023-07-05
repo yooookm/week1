@@ -35,6 +35,13 @@ class QuestionAdapter(
             val currentQuestion = questions[position]
             holder.questionTextView.text = currentQuestion
 
+            // 뷰를 보이게 설정
+            holder.imageView.visibility = View.VISIBLE
+            holder.questionTextView.visibility = View.VISIBLE
+        } else {
+            // 뷰를 숨김
+            holder.imageView.visibility = View.INVISIBLE
+            holder.questionTextView.visibility = View.INVISIBLE
         }
 
         if (answers.size > position) {  // answers.size와 position을 비교해야합니다.
@@ -43,10 +50,17 @@ class QuestionAdapter(
             quesAns.append(questions+ " ")
             quesAns.append(currentAnswer+ "\n")
 
+            // 뷰를 보이게 설정
+            holder.answerTextView.visibility = View.VISIBLE
         } else {
             holder.answerTextView.text = ""  // 답변이 null일 경우, 아무것도 표시하지 않습니다
+
+            // 뷰를 숨김
+            holder.answerTextView.visibility = View.INVISIBLE
         }
     }
+
+
 
     fun viewBack(): String {
         return quesAns.toString()

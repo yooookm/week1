@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#222222">
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/gallery_title"
+        android:padding="18dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#25C0DE"
+        android:text="Gallery"
+        android:textSize="24sp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/gallery_RV"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/gallery_title"
         android:scrollbars="none"
-        android:padding="16dp"
-        android:clipToPadding="false"
+        
+    
         android:layout_above="@id/camera_button" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/camera_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,6 +35,9 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        app:backgroundTint="#25C0DE"
+        android:text="Camera"
         tools:ignore="SpeakableTextPresentCheck" />
+
 
 </RelativeLayout>

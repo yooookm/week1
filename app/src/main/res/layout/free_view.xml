@@ -16,7 +16,9 @@
             android:layout_height="50dp"
             android:text="Gallery"
             android:id="@+id/gallery_button"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:backgroundTint="#25C0DE"
+            android:textColor="#FFFFFF" />
 
     </LinearLayout>
 
@@ -35,6 +37,8 @@
         android:text="Complete"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_margin="16dp" />
+        android:layout_margin="16dp"
+        android:backgroundTint="#25C0DE"
+        android:textColor="#FFFFFF" />
 
 </RelativeLayout>

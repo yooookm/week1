@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder.ImageInfo
+import android.graphics.Rect
 import android.icu.text.SimpleDateFormat
 import android.media.Image
 import android.net.Uri
@@ -16,6 +17,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.Media
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -64,6 +66,7 @@ class GalleryActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
+
         super.onResume()
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
             && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -78,6 +81,9 @@ class GalleryActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         galleryRV = findViewById<RecyclerView>(R.id.gallery_RV)
+        val itemDecoration = VerticalSpaceItemDeco(20)  // 10px의 공간을 추가
+        galleryRV.addItemDecoration(itemDecoration)
+
         imageList = ArrayList<imageInfo>()
         binding.cameraButton.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -189,6 +195,11 @@ class GalleryActivity : AppCompatActivity() {
                 galleryRV.layoutManager = GridLayoutManager(this, 3)
 
             }
+        }
+    }
+    inner class VerticalSpaceItemDeco(private val verticalSpace: Int) :RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+            outRect.bottom = verticalSpace
         }
     }
 }
